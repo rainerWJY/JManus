@@ -8,6 +8,12 @@ export function initStatusModule(ui) {
     const seenLogs = new Set();
     let lastError = null;
     
+    // 添加节流控制
+    let lastUpdate = Date.now();
+    const UPDATE_INTERVAL = 2000; // 降低到2秒刷新一次
+    const SLOW_INTERVAL = 5000;   // 空闲时5秒刷新一次
+    let currentInterval = UPDATE_INTERVAL;
+
     function startLoading() {
         // 显示状态区域
         ui.statusContainer.className = 'status-visible';
@@ -16,11 +22,16 @@ export function initStatusModule(ui) {
         ui.executionLogs.innerHTML = '';
         ui.stepsContainer.innerHTML = '';
         
-        // 添加初始加载日志
-        addLog("正在启动计划...", "info");
+        // 重置为快速刷新
+        currentInterval = UPDATE_INTERVAL;
         
         // 开始定时检查状态
-        statusCheckInterval = setInterval(checkPlanStatus, 1000);
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+        }
+        statusCheckInterval = setInterval(checkPlanStatus, currentInterval);
+        
+        addLog("正在启动计划...", "info");
     }
     
     function stopLoading() {
@@ -121,6 +132,15 @@ export function initStatusModule(ui) {
     }
     
     function updateStatusUI(status) {
+        // 已经完成的任务切换到低频率刷新
+        if (status.progress >= 100 || status.state === 'COMPLETED') {
+            currentInterval = SLOW_INTERVAL;
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = setInterval(throttleCheck, currentInterval);
+            }
+        }
+        
         // 更新计划ID
         if (status.planId) {
             ui.planIdElement.textContent = status.planId;
@@ -146,6 +166,14 @@ export function initStatusModule(ui) {
         if (status.state === 'COMPLETED') {
             addLog('计划完成！', 'info');
             stopLoading();
+        }
+    }
+    
+    function throttleCheck() {
+        const now = Date.now();
+        if (now - lastUpdate >= currentInterval) {
+            lastUpdate = now;
+            checkPlanStatus();
         }
     }
     
@@ -200,27 +228,17 @@ export function initStatusModule(ui) {
             lastError = errorMessage;
         }
         
-        // 如果是404错误，可能是服务未就绪，或还没有发送请求创建计划
-        if (error.status === 404) {
-            addLog("提示: 服务尚未就绪或未创建计划。请发送一个查询开始交互。", 'info');
-        }
-        
-        // 如果重试次数过多，暂停检查并减少频率
+        // 如果重试次数过多，降低检查频率
         retryCount++;
         if (retryCount > MAX_RETRIES) {
             addLog(`已达到最大重试次数(${MAX_RETRIES})，降低状态检查频率`, 'warn');
             
             if (statusCheckInterval) {
                 clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
+                currentInterval = SLOW_INTERVAL;
+                statusCheckInterval = setInterval(throttleCheck, currentInterval);
             }
-            
-            // 10秒后以较低频率重试
-            setTimeout(() => {
-                retryCount = 0;
-                addLog('以较低频率继续状态检查', 'info');
-                statusCheckInterval = setInterval(checkPlanStatus, 3000); // 降低到3秒一次
-            }, 5000);
+            retryCount = 0;
         }
     }
     

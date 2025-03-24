@@ -26,8 +26,17 @@ export function initChatModule(ui, status) {
         // 显示加载状态
         status.startLoading();
         
-        // 添加等待消息
+        // 添加消息节流
         const loadingMsgId = addLoadingMessage();
+        const messageContainer = ui.messagesContainer;
+        
+        // 使用 RequestAnimationFrame 优化滚动
+        function smoothScroll() {
+            if (messageContainer.scrollTop < messageContainer.scrollHeight - messageContainer.clientHeight) {
+                messageContainer.scrollTop += Math.ceil((messageContainer.scrollHeight - messageContainer.scrollTop - messageContainer.clientHeight) / 8);
+                requestAnimationFrame(smoothScroll);
+            }
+        }
         
         // 尝试不同的URL格式
         const urls = [
