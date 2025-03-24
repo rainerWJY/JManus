@@ -1,0 +1,82 @@
+.message {
+    margin-bottom: 16px;
+    display: flex;
+}
+
+.message-content {
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
+    word-wrap: break-word;
+    line-height: 1.5;
+}
+
+.user {
+    justify-content: flex-end;
+}
+
+.user .message-content {
+    background-color: #0084ff;
+    color: white;
+    border-top-right-radius: 4px;
+}
+
+.system .message-content {
+    background-color: #f0f2f5;
+    color: #333;
+    border-top-left-radius: 4px;
+}
+
+#user-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    resize: none;
+    outline: none;
+    font-size: 16px;
+    margin-right: 12px;
+}
+
+#send-button {
+    padding: 0 24px;
+    background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+#send-button:hover {
+    opacity: 0.9;
+}
+
+#send-button:active {
+    transform: scale(0.97);
+}
+
+.message-progress {
+    background-color: #f5f5f5;
+    padding: 8px;
+    border-radius: 6px;
+    margin: 8px 0;
+}
+
+.progress-text {
+    margin-bottom: 4px;
+}
+
+.inline-progress-bar {
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.inline-progress {
+    height: 100%;
+    background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);
+    transition: width 0.3s ease;
+}

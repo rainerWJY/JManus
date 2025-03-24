@@ -1,0 +1,99 @@
+.plan-status {
+    padding: 16px;
+    border-top: 1px solid #eee;
+}
+
+.status-details {
+    margin-top: 8px;
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.progress-bar {
+    margin-top: 8px;
+    height: 8px;
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.steps-container {
+    margin-top: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+
+.step-item {
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+}
+
+.step-status {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+.step-completed {
+    color: #4caf50;
+}
+
+.step-in-progress {
+    color: #2196f3;
+    animation: pulse 1.5s infinite;
+}
+
+.step-blocked {
+    color: #f44336;
+}
+
+.step-not-started {
+    color: #9e9e9e;
+}
+
+.log-container {
+    margin-top: 12px;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+
+.logs {
+    max-height: 150px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 12px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.log-entry {
+    margin-bottom: 4px;
+    border-bottom: 1px dotted #ddd;
+    padding-bottom: 4px;
+}
+
+.log-info {
+    color: #0277bd;
+}
+
+.log-error {
+    color: #d32f2f;
+}
+
+.progress-summary {
+    margin-top: 8px;
+}

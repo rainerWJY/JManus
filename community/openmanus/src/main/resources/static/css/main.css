@@ -1,0 +1,10 @@
+/* 导入基础样式 */
+@import 'modules/base.css';
+/* 导入布局样式 */
+@import 'modules/layout.css';
+/* 导入聊天组件样式 */
+@import 'modules/chat.css';
+/* 导入状态组件样式 */
+@import 'modules/status.css';
+/* 导入动画效果 */
+@import 'modules/animations.css';

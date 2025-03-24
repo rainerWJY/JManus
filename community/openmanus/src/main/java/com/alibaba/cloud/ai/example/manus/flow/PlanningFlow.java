@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 
 import com.alibaba.cloud.ai.example.manus.agent.BaseAgent;
 import com.alibaba.cloud.ai.example.manus.tool.PlanningTool;
+import com.alibaba.cloud.ai.example.manus.model.PlanStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -325,77 +326,91 @@ public class PlanningFlow extends BaseFlow {
 		}
 	}
 
-	public String generatePlanTextFromStorage() {
+	public PlanStatus getPlanStatus() {
 		try {
 			Map<String, Map<String, Object>> plans = planningTool.getPlans();
 			if (!plans.containsKey(activePlanId)) {
-				return "Error: Plan with ID " + activePlanId + " not found";
+				return null;
 			}
 
 			Map<String, Object> planData = plans.get(activePlanId);
-			String title = (String) planData.getOrDefault("title", "Untitled Plan");
-			List<String> steps = (List<String>) planData.getOrDefault("steps", new ArrayList<String>());
-			List<String> stepStatuses = (List<String>) planData.getOrDefault("step_statuses", new ArrayList<String>());
-			List<String> stepNotes = (List<String>) planData.getOrDefault("step_notes", new ArrayList<String>());
+			PlanStatus status = new PlanStatus();
+			status.setPlanId(activePlanId);
+			status.setTitle((String) planData.getOrDefault("title", "Untitled Plan"));
+			status.setSteps((List<String>) planData.getOrDefault("steps", new ArrayList<String>()));
+			status.setStepStatuses((List<String>) planData.getOrDefault("step_statuses", new ArrayList<String>()));
+			status.setStepNotes((List<String>) planData.getOrDefault("step_notes", new ArrayList<String>()));
 
-			while (stepStatuses.size() < steps.size()) {
-				stepStatuses.add(PlanStepStatus.NOT_STARTED.getValue());
+			while (status.getStepStatuses().size() < status.getSteps().size()) {
+				status.getStepStatuses().add(PlanStepStatus.NOT_STARTED.getValue());
 			}
-			while (stepNotes.size() < steps.size()) {
-				stepNotes.add("");
+			while (status.getStepNotes().size() < status.getSteps().size()) {
+				status.getStepNotes().add("");
 			}
 
 			Map<String, Integer> statusCounts = new HashMap<>();
-			for (String status : PlanStepStatus.getAllStatuses()) {
-				statusCounts.put(status, 0);
+			for (String statusType : PlanStepStatus.getAllStatuses()) {
+				statusCounts.put(statusType, 0);
 			}
-
-			for (String status : stepStatuses) {
-				statusCounts.put(status, statusCounts.getOrDefault(status, 0) + 1);
+			for (String statusType : status.getStepStatuses()) {
+				statusCounts.put(statusType, statusCounts.getOrDefault(statusType, 0) + 1);
 			}
+			status.setStatusCounts(statusCounts);
 
-			int completed = statusCounts.get(PlanStepStatus.COMPLETED.getValue());
-			int total = steps.size();
-			double progress = total > 0 ? (completed / (double) total) * 100 : 0;
+			status.setCompletedSteps(statusCounts.get(PlanStepStatus.COMPLETED.getValue()));
+			status.setTotalSteps(status.getSteps().size());
+			status.setProgress(status.getTotalSteps() > 0 ? 
+				(status.getCompletedSteps() / (double) status.getTotalSteps() * 100) : 0);
 
-			StringBuilder planText = new StringBuilder();
-			planText.append("Plan: ").append(title).append(" (ID: ").append(activePlanId).append(")\n");
-
-			for (int i = 0; i < planText.length() - 1; i++) {
-				planText.append("=");
-			}
-			planText.append("\n\n");
-
-			planText.append(String.format("Progress: %d/%d steps completed (%.1f%%)\n", completed, total, progress));
-			planText.append(String.format("Status: %d completed, %d in progress, ",
-					statusCounts.get(PlanStepStatus.COMPLETED.getValue()),
-					statusCounts.get(PlanStepStatus.IN_PROGRESS.getValue())));
-			planText.append(
-					String.format("%d blocked, %d not started\n\n", statusCounts.get(PlanStepStatus.BLOCKED.getValue()),
-							statusCounts.get(PlanStepStatus.NOT_STARTED.getValue())));
-			planText.append("Steps:\n");
-
-			Map<String, String> statusMarks = PlanStepStatus.getStatusMarks();
-
-			for (int i = 0; i < steps.size(); i++) {
-				String step = steps.get(i);
-				String status = stepStatuses.get(i);
-				String notes = stepNotes.get(i);
-				String statusMark = statusMarks.getOrDefault(status,
-						statusMarks.get(PlanStepStatus.NOT_STARTED.getValue()));
-
-				planText.append(String.format("%d. %s %s\n", i, statusMark, step));
-				if (!notes.isEmpty()) {
-					planText.append("   Notes: ").append(notes).append("\n");
-				}
-			}
-
-			return planText.toString();
+			return status;
 		}
 		catch (Exception e) {
-			log.error("Error generating plan text from storage: " + e.getMessage());
-			return "Error: Unable to retrieve plan with ID " + activePlanId;
+			log.error("Error getting plan status: " + e.getMessage());
+			return null;
 		}
+	}
+
+	public String generatePlanTextFromStorage() {
+		PlanStatus status = getPlanStatus();
+		if (status == null) {
+			return "Error: Plan with ID " + activePlanId + " not found";
+		}
+
+		StringBuilder planText = new StringBuilder();
+		planText.append("Plan: ").append(status.getTitle()).append(" (ID: ").append(status.getPlanId()).append(")\n");
+		
+		for (int i = 0; i < planText.length() - 1; i++) {
+			planText.append("=");
+		}
+		planText.append("\n\n");
+
+		planText.append(String.format("Progress: %d/%d steps completed (%.1f%%)\n", 
+			status.getCompletedSteps(), status.getTotalSteps(), status.getProgress()));
+		
+		Map<String, Integer> counts = status.getStatusCounts();
+		planText.append(String.format("Status: %d completed, %d in progress, %d blocked, %d not started\n\n",
+			counts.get(PlanStepStatus.COMPLETED.getValue()),
+			counts.get(PlanStepStatus.IN_PROGRESS.getValue()),
+			counts.get(PlanStepStatus.BLOCKED.getValue()),
+			counts.get(PlanStepStatus.NOT_STARTED.getValue())));
+			
+		planText.append("Steps:\n");
+		Map<String, String> statusMarks = PlanStepStatus.getStatusMarks();
+		
+		for (int i = 0; i < status.getSteps().size(); i++) {
+			String step = status.getSteps().get(i);
+			String stepStatus = status.getStepStatuses().get(i);
+			String notes = status.getStepNotes().get(i);
+			String statusMark = statusMarks.getOrDefault(stepStatus,
+					statusMarks.get(PlanStepStatus.NOT_STARTED.getValue()));
+
+			planText.append(String.format("%d. %s %s\n", i, statusMark, step));
+			if (!notes.isEmpty()) {
+				planText.append("   Notes: ").append(notes).append("\n");
+			}
+		}
+
+		return planText.toString();
 	}
 
 	public String finalizePlan() {

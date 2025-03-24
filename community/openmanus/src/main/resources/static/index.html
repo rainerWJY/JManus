@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manus AI 助手</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Manus AI 助手</h1>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages"></div>
+        
+        <div class="plan-status" id="plan-status">
+            <div class="status-hidden" id="status-container">
+                <h3>当前计划状态</h3>
+                <div class="status-details">
+                    <p><strong>计划ID:</strong> <span id="plan-id">-</span></p>
+                    <div class="progress-summary">
+                        <p><strong>进度:</strong> <span id="plan-progress">0</span>% <span id="steps-summary">-</span></p>
+                        <div class="progress-bar">
+                            <div class="progress" id="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="steps-container" id="steps-container">
+                        <!-- 步骤列表将动态生成 -->
+                    </div>
+                    <div class="log-container">
+                        <p><strong>执行日志:</strong></p>
+                        <div class="logs" id="execution-logs">
+                            <!-- 日志内容将动态添加 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <textarea id="user-input" placeholder="在这里输入你的问题...(Shift+Enter发送, Enter换行)" rows="3"></textarea>
+            <button id="send-button">发送</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
