@@ -27,32 +27,7 @@ export function initUIModule() {
     }
     
     function formatMessage(content) {
-        // 处理任务进度信息的特殊格式化
-        if (content.includes('Progress:') && content.includes('Steps:')) {
-            const progressMatch = content.match(/Progress: (\d+)\/(\d+) steps completed \(([0-9.]+)%\)/);
-            const statusMatch = content.match(/Status: (\d+) completed, (\d+) in progress, (\d+) blocked, (\d+) not started/);
-            
-            if (progressMatch && statusMatch) {
-                // 提取进度信息
-                const completed = progressMatch[1];
-                const total = progressMatch[2];
-                const percentage = progressMatch[3];
-                
-                // 创建美化的进度显示
-                let formattedContent = content.replace(/(Progress:.+?)(\n|$)/, 
-                    `<div class="message-progress">
-                        <div class="progress-text">进度: ${completed}/${total} 步骤完成 (${percentage}%)</div>
-                        <div class="inline-progress-bar">
-                            <div class="inline-progress" style="width: ${percentage}%"></div>
-                        </div>
-                    </div>\n`
-                );
-                
-                return formattedContent.replace(/\n/g, '<br>');
-            }
-        }
-        
-        // 基本格式化，支持换行
+        // ...existing code...
         return content.replace(/\n/g, '<br>');
     }
     

@@ -1,5 +1,7 @@
 server:
   port: 18080
+  servlet:
+    context-path: /  # 确保没有额外的基础路径
 
 spring:
   application:
@@ -12,3 +14,8 @@ spring:
       chat:
         options:
           model: qwen-max-latest
+
+logging:
+  level:
+    com.alibaba.cloud.ai.example.manus: DEBUG  # 增加日志级别以便调试
+    org.springframework.web: INFO

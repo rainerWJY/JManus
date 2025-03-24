@@ -337,29 +337,46 @@ public class PlanningFlow extends BaseFlow {
 			PlanStatus status = new PlanStatus();
 			status.setPlanId(activePlanId);
 			status.setTitle((String) planData.getOrDefault("title", "Untitled Plan"));
-			status.setSteps((List<String>) planData.getOrDefault("steps", new ArrayList<String>()));
-			status.setStepStatuses((List<String>) planData.getOrDefault("step_statuses", new ArrayList<String>()));
-			status.setStepNotes((List<String>) planData.getOrDefault("step_notes", new ArrayList<String>()));
-
-			while (status.getStepStatuses().size() < status.getSteps().size()) {
-				status.getStepStatuses().add(PlanStepStatus.NOT_STARTED.getValue());
+			
+			// 转换步骤为Step对象
+			List<String> rawSteps = (List<String>) planData.getOrDefault("steps", new ArrayList<String>());
+			List<String> stepStatuses = (List<String>) planData.getOrDefault("step_statuses", new ArrayList<String>());
+			List<String> stepNotes = (List<String>) planData.getOrDefault("step_notes", new ArrayList<String>());
+			
+			// 确保状态列表长度与步骤一致
+			while (stepStatuses.size() < rawSteps.size()) {
+				stepStatuses.add(PlanStepStatus.NOT_STARTED.getValue());
 			}
-			while (status.getStepNotes().size() < status.getSteps().size()) {
-				status.getStepNotes().add("");
+			while (stepNotes.size() < rawSteps.size()) {
+				stepNotes.add("");
 			}
+			
+			// 创建Step对象列表
+			List<PlanStatus.Step> steps = new ArrayList<>();
+			for (int i = 0; i < rawSteps.size(); i++) {
+				PlanStatus.Step step = new PlanStatus.Step();
+				step.setDescription(rawSteps.get(i));
+				step.setStatus(stepStatuses.get(i));
+				step.setNotes(stepNotes.get(i));
+				steps.add(step);
+			}
+			status.setSteps(steps);
 
+			// 统计状态数量
 			Map<String, Integer> statusCounts = new HashMap<>();
 			for (String statusType : PlanStepStatus.getAllStatuses()) {
 				statusCounts.put(statusType, 0);
 			}
-			for (String statusType : status.getStepStatuses()) {
-				statusCounts.put(statusType, statusCounts.getOrDefault(statusType, 0) + 1);
+			for (PlanStatus.Step step : steps) {
+				String stepStatus = step.getStatus();
+				statusCounts.put(stepStatus, statusCounts.getOrDefault(stepStatus, 0) + 1);
 			}
 			status.setStatusCounts(statusCounts);
 
+			// 设置进度信息
 			status.setCompletedSteps(statusCounts.get(PlanStepStatus.COMPLETED.getValue()));
-			status.setTotalSteps(status.getSteps().size());
-			status.setProgress(status.getTotalSteps() > 0 ? 
+			status.setTotalSteps(steps.size());
+			status.setProgressPercentage(status.getTotalSteps() > 0 ? 
 				(status.getCompletedSteps() / (double) status.getTotalSteps() * 100) : 0);
 
 			return status;
@@ -397,15 +414,15 @@ public class PlanningFlow extends BaseFlow {
 		planText.append("Steps:\n");
 		Map<String, String> statusMarks = PlanStepStatus.getStatusMarks();
 		
-		for (int i = 0; i < status.getSteps().size(); i++) {
-			String step = status.getSteps().get(i);
-			String stepStatus = status.getStepStatuses().get(i);
-			String notes = status.getStepNotes().get(i);
-			String statusMark = statusMarks.getOrDefault(stepStatus,
+		List<PlanStatus.Step> steps = status.getSteps();
+		for (int i = 0; i < steps.size(); i++) {
+			PlanStatus.Step step = steps.get(i);
+			String statusMark = statusMarks.getOrDefault(step.getStatus(),
 					statusMarks.get(PlanStepStatus.NOT_STARTED.getValue()));
 
-			planText.append(String.format("%d. %s %s\n", i, statusMark, step));
-			if (!notes.isEmpty()) {
+			planText.append(String.format("%d. %s %s\n", i, statusMark, step.getDescription()));
+			String notes = step.getNotes();
+			if (notes != null && !notes.isEmpty()) {
 				planText.append("   Notes: ").append(notes).append("\n");
 			}
 		}
