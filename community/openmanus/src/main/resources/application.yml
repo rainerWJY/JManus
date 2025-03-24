@@ -19,3 +19,6 @@ logging:
   level:
     com.alibaba.cloud.ai.example.manus: DEBUG  # 增加日志级别以便调试
     org.springframework.web: INFO
+manus:
+  browser:
+    headless: false  # 设置为 true 则启用无头模式

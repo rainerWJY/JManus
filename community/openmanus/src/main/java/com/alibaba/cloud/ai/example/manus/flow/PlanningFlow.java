@@ -16,6 +16,7 @@
 package com.alibaba.cloud.ai.example.manus.flow;
 
 import com.alibaba.cloud.ai.example.manus.llm.LlmService;
+import com.alibaba.cloud.ai.example.manus.service.ChromeDriverService;
 import com.alibaba.cloud.ai.example.manus.tool.support.ToolExecuteResult;
 import com.alibaba.fastjson.JSON;
 
@@ -51,6 +52,11 @@ public class PlanningFlow extends BaseFlow {
 
 	@Autowired
 	private LlmService llmService;
+
+	@Autowired
+	private ChromeDriverService chromeDriverService;	
+
+
 
 	// shared result state between agents.
 	private Map<String, Object> resultState;
@@ -138,6 +144,9 @@ public class PlanningFlow extends BaseFlow {
 		catch (Exception e) {
 			log.error("Error in PlanningFlow", e);
 			return "Execution failed: " + e.getMessage();
+		}
+		finally{
+			chromeDriverService.cleanup();
 		}
 	}
 
