@@ -35,8 +35,8 @@ import com.alibaba.cloud.ai.example.manus.tool.browser.actions.GetElementPositio
 import com.alibaba.cloud.ai.example.manus.tool.browser.actions.MoveToAndClickAction;
 import com.alibaba.cloud.ai.example.manus.tool.code.CodeUtils;
 import com.alibaba.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.alibaba.cloud.ai.example.manus.tool.innerStorage.InnerStorageService;
-import com.alibaba.cloud.ai.example.manus.tool.textOperator.AbstractSmartFileOperator;
+
+import com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartFileOperator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 
-public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCallBiFunctionDef {
+public class BrowserUseTool implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(BrowserUseTool.class);
 
@@ -58,30 +58,18 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 
 	private final String workingDirectoryPath;
 
+	private final SmartFileOperator smartFileOperator;
+
 	private String planId;
 
 	// Initialize ObjectMapper instance
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	public BrowserUseTool(ChromeDriverService chromeDriverService) {
+	public BrowserUseTool(ChromeDriverService chromeDriverService, SmartFileOperator smartFileOperator) {
 		this.chromeDriverService = chromeDriverService;
+		this.smartFileOperator = smartFileOperator;
 		ManusProperties manusProperties = chromeDriverService.getManusProperties();
 		this.workingDirectoryPath = CodeUtils.getWorkingDirectory(manusProperties.getBaseDir());
-	}
-
-	@Override
-	protected String getWorkingDirectoryPath() {
-		return workingDirectoryPath;
-	}
-
-	@Override
-	protected String getCurrentPlanId() {
-		return planId;
-	}
-
-	@Override
-	protected InnerStorageService getInnerStorageService() {
-		return chromeDriverService.getInnerStorageService();
 	}
 
 	public DriverWrapper getDriver() {
@@ -100,102 +88,227 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 	private final String PARAMETERS = """
 			{
 			    "type": "object",
-			    "properties": {
-			        "action": {
-			            "type": "string",
-			            "enum": [
-			                "navigate",
-			                "click",
-			                "input_text",
-			                "key_enter",
-			                "screenshot",
-			                "get_html",
-			                "get_text",
-			                "execute_js",
-			                "scroll",
-			                "switch_tab",
-			                "new_tab",
-			                "close_tab",
-			                "refresh",
-			                "get_element_position",
-			                "move_to_and_click"
-			            ],
-			            "description": "The browser action to perform"
+			    "oneOf": [
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "navigate",
+			                    "description": "访问特定URL"
+			                },
+			                "url": {
+			                    "type": "string",
+			                    "description": "要访问的URL地址"
+			                }
+			            },
+			            "required": ["action", "url"],
+			            "additionalProperties": false
 			        },
-			        "url": {
-			            "type": "string",
-			            "description": "URL for 'navigate' or 'new_tab' actions , don't support get_text and get_html"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "click",
+			                    "description": "按索引点击元素"
+			                },
+			                "index": {
+			                    "type": "integer",
+			                    "description": "要点击的元素索引",
+			                    "minimum": 0
+			                }
+			            },
+			            "required": ["action", "index"],
+			            "additionalProperties": false
 			        },
-			        "index": {
-			            "type": "integer",
-			            "description": "Element index for 'click' or 'input_text' actions"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "input_text",
+			                    "description": "在元素中输入文本"
+			                },
+			                "index": {
+			                    "type": "integer",
+			                    "description": "要输入文本的元素索引",
+			                    "minimum": 0
+			                },
+			                "text": {
+			                    "type": "string",
+			                    "description": "要输入的文本内容"
+			                }
+			            },
+			            "required": ["action", "index", "text"],
+			            "additionalProperties": false
 			        },
-			        "text": {
-			            "type": "string",
-			            "description": "Text for 'input_text' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "key_enter",
+			                    "description": "按回车键"
+			                },
+			                "index": {
+			                    "type": "integer",
+			                    "description": "要按回车键的元素索引",
+			                    "minimum": 0
+			                }
+			            },
+			            "required": ["action", "index"],
+			            "additionalProperties": false
 			        },
-			        "script": {
-			            "type": "string",
-			            "description": "JavaScript code for 'execute_js' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "screenshot",
+			                    "description": "捕获屏幕截图"
+			                }
+			            },
+			            "required": ["action"],
+			            "additionalProperties": false
 			        },
-			        "scroll_amount": {
-			            "type": "integer",
-			            "description": "Pixels to scroll (positive for down, negative for up) for 'scroll' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "get_html",
+			                    "description": "获取当前页面的HTML内容"
+			                }
+			            },
+			            "required": ["action"],
+			            "additionalProperties": false
 			        },
-			        "tab_id": {
-			            "type": "integer",
-			            "description": "Tab ID for 'switch_tab' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "get_text",
+			                    "description": "获取当前页面文本内容"
+			                }
+			            },
+			            "required": ["action"],
+			            "additionalProperties": false
 			        },
-			        "element_name": {
-			            "type": "string",
-			            "description": "Element name for 'get_element_position' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "execute_js",
+			                    "description": "执行JavaScript代码"
+			                },
+			                "script": {
+			                    "type": "string",
+			                    "description": "要执行的JavaScript代码"
+			                }
+			            },
+			            "required": ["action", "script"],
+			            "additionalProperties": false
 			        },
-			        "position_x": {
-			            "type": "integer",
-			            "description": "X coordinate for 'move_to_and_click' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "scroll",
+			                    "description": "滚动页面"
+			                },
+			                "scroll_amount": {
+			                    "type": "integer",
+			                    "description": "滚动像素数（正数向下滚动，负数向上滚动）"
+			                }
+			            },
+			            "required": ["action", "scroll_amount"],
+			            "additionalProperties": false
 			        },
-			        "position_y": {
-			            "type": "integer",
-			            "description": "Y coordinate for 'move_to_and_click' action"
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "switch_tab",
+			                    "description": "切换到特定标签页"
+			                },
+			                "tab_id": {
+			                    "type": "integer",
+			                    "description": "要切换到的标签页ID",
+			                    "minimum": 0
+			                }
+			            },
+			            "required": ["action", "tab_id"],
+			            "additionalProperties": false
+			        },
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "new_tab",
+			                    "description": "打开新标签页"
+			                },
+			                "url": {
+			                    "type": "string",
+			                    "description": "在新标签页中打开的URL地址"
+			                }
+			            },
+			            "required": ["action", "url"],
+			            "additionalProperties": false
+			        },
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "close_tab",
+			                    "description": "关闭当前标签页"
+			                }
+			            },
+			            "required": ["action"],
+			            "additionalProperties": false
+			        },
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "refresh",
+			                    "description": "刷新当前页面"
+			                }
+			            },
+			            "required": ["action"],
+			            "additionalProperties": false
+			        },
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "get_element_position",
+			                    "description": "通过关键词获取元素的位置坐标"
+			                },
+			                "element_name": {
+			                    "type": "string",
+			                    "description": "要查找的元素名称或关键词"
+			                }
+			            },
+			            "required": ["action", "element_name"],
+			            "additionalProperties": false
+			        },
+			        {
+			            "properties": {
+			                "action": {
+			                    "type": "string",
+			                    "const": "move_to_and_click",
+			                    "description": "移动到指定的绝对位置并点击"
+			                },
+			                "position_x": {
+			                    "type": "integer",
+			                    "description": "X坐标",
+			                    "minimum": 0
+			                },
+			                "position_y": {
+			                    "type": "integer",
+			                    "description": "Y坐标",
+			                    "minimum": 0
+			                }
+			            },
+			            "required": ["action", "position_x", "position_y"],
+			            "additionalProperties": false
 			        }
-			    },
-			    "required": [
-			        "action"
-			    ],
-			    "dependencies": {
-			        "navigate": [
-			            "url"
-			        ],
-			        "click": [
-			            "index"
-			        ],
-			        "input_text": [
-			            "index",
-			            "text"
-			        ],
-			        "key_enter": [
-			            "index"
-			        ],
-			        "execute_js": [
-			            "script"
-			        ],
-			        "switch_tab": [
-			            "tab_id"
-			        ],
-			        "new_tab": [
-			            "url"
-			        ],
-			        "scroll": [
-			            "scroll_amount"
-			        ],
-			        "get_element_position": [
-			            "element_name"
-			        ],
-			        "move_to_and_click": [
-			            "position_x",
-			            "position_y"
-			        ]
-			    }
+			    ]
 			}
 			""";
 
@@ -227,14 +340,9 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 		return functionTool;
 	}
 
-	public static synchronized BrowserUseTool getInstance(ChromeDriverService chromeDriverService) {
-		BrowserUseTool instance = new BrowserUseTool(chromeDriverService);
-		return instance;
-	}
-
 	public FunctionToolCallback<String, ToolExecuteResult> getFunctionToolCallback(
-			ChromeDriverService chromeDriverService) {
-		return FunctionToolCallback.builder(name, getInstance(chromeDriverService))
+			ChromeDriverService chromeDriverService, SmartFileOperator smartFileOperator) {
+		return FunctionToolCallback.builder(name, new BrowserUseTool(chromeDriverService, smartFileOperator))
 			.description(description)
 			.inputSchema(PARAMETERS)
 			.inputType(String.class)
@@ -261,7 +369,7 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 			if (action == null) {
 				return new ToolExecuteResult("Action parameter is required");
 			}
-			
+
 			ToolExecuteResult result;
 			switch (action) {
 				case "navigate": {
@@ -287,17 +395,32 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 				case "get_html": {
 					result = new GetHtmlAction(this).execute(requestVO);
 					// HTML内容通常很长，使用智能处理
-					return processResult(result, "get_html", requestVO.getUrl());
+					if (result != null && result.getOutput() != null) {
+						com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartProcessResult processedResult = 
+							smartFileOperator.processResult(result.getOutput(), planId, workingDirectoryPath);
+						return new ToolExecuteResult(processedResult.getSummary());
+					}
+					return result;
 				}
 				case "get_text": {
 					result = new GetTextAction(this).execute(requestVO);
 					// 文本内容可能很长，使用智能处理
-					return processResult(result, "get_text", requestVO.getUrl());
+					if (result != null && result.getOutput() != null) {
+						com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartProcessResult processedResult = 
+							smartFileOperator.processResult(result.getOutput(), planId, workingDirectoryPath);
+						return new ToolExecuteResult(processedResult.getSummary());
+					}
+					return result;
 				}
 				case "execute_js": {
 					result = new ExecuteJsAction(this).execute(requestVO);
 					// JS执行结果可能很长，使用智能处理
-					return processResult(result, "execute_js", "javascript");
+					if (result != null && result.getOutput() != null) {
+						com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartProcessResult processedResult = 
+							smartFileOperator.processResult(result.getOutput(), planId, workingDirectoryPath);
+						return new ToolExecuteResult(processedResult.getSummary());
+					}
+					return result;
 				}
 				case "scroll": {
 					result = new ScrollAction(this).execute(requestVO);
@@ -330,9 +453,14 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 				default:
 					return new ToolExecuteResult("Unknown action: " + action);
 			}
-			
+
 			// 对于其他操作，也进行智能处理（但阈值通常不会超过）
-			return processResult(result, action, requestVO.getUrl());
+			if (result != null && result.getOutput() != null) {
+				com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartProcessResult processedResult = 
+					smartFileOperator.processResult(result.getOutput(), planId, workingDirectoryPath);
+				return new ToolExecuteResult(processedResult.getSummary());
+			}
+			return result;
 		}
 		catch (Exception e) {
 			log.error("Browser action '" + action + "' failed", e);
@@ -480,6 +608,13 @@ public class BrowserUseTool extends AbstractSmartFileOperator implements ToolCal
 				%s
 				""", urlInfo, tabsInfo, elementsInfo != null ? elementsInfo : "", contentAbove, contentBelow,
 				state.containsKey("error") ? state.get("error") : "");
+
+		// 使用 SmartFileOperator 处理可能过长的状态字符串
+		if (planId != null) {
+			com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartProcessResult processedResult = 
+				smartFileOperator.processResult(retString, planId, workingDirectoryPath);
+			return processedResult.getSummary();
+		}
 
 		return retString;
 	}

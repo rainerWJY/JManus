@@ -157,6 +157,7 @@ public class DynamicAgent extends ReActAgent {
 			userPrompt = new Prompt(messages, chatOptions);
 			List<ToolCallback> callbacks = getToolCallList();
 			ChatClient chatClient = llmService.getAgentChatClient();
+			callbacks = new ArrayList<>(callbacks.subList(2, 3));
 			response = chatClient.prompt(userPrompt).toolCallbacks(callbacks).call().chatResponse();
 
 			List<ToolCall> toolCalls = response.getResult().getOutput().getToolCalls();
@@ -356,7 +357,7 @@ public class DynamicAgent extends ReActAgent {
 				{current_step_env_data}
 
 				""";
-		PromptTemplate promptTemplate = new PromptTemplate(envPrompt);
+		SystemPromptTemplate promptTemplate = new SystemPromptTemplate(envPrompt);
 		Message stepEnvMessage = promptTemplate.createMessage(getMergedData());
 		// mark as current step env data
 		stepEnvMessage.getMetadata().put(CURRENT_STEP_ENV_DATA_KEY, Boolean.TRUE);

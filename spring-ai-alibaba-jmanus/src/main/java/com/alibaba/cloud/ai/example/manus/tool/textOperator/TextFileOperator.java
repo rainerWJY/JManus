@@ -34,7 +34,7 @@ import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 
-public class TextFileOperator extends AbstractSmartFileOperator implements ToolCallBiFunctionDef {
+public class TextFileOperator implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(TextFileOperator.class);
 
@@ -42,17 +42,29 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 
 	private final TextFileService textFileService;
 
+	private final SmartFileOperator smartFileOperator;
+
 	private String planId;
 
-	public TextFileOperator(TextFileService textFileService) {
+	public TextFileOperator(TextFileService textFileService, SmartFileOperator smartFileOperator) {
 		this.textFileService = textFileService;
+		this.smartFileOperator = smartFileOperator;
 		ManusProperties manusProperties = textFileService.getManusProperties();
 		workingDirectoryPath = CodeUtils.getWorkingDirectory(manusProperties.getBaseDir());
 	}
 
-	@Override
-	protected InnerStorageService getInnerStorageService() {
-		return textFileService.getInnerStorageService();
+	/**
+	 * 使用 SmartFileOperator 处理结果
+	 */
+	private ToolExecuteResult processResult(ToolExecuteResult result, String operationType, String fileName) {
+		if (result == null || result.getOutput() == null) {
+			return result;
+		}
+		
+		SmartProcessResult processedResult = 
+			smartFileOperator.processResult(result.getOutput(), planId, workingDirectoryPath);
+		
+		return new ToolExecuteResult(processedResult.getSummary());
 	}
 
 	private final String PARAMETERS = """
@@ -113,8 +125,9 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 		return functionTool;
 	}
 
-	public FunctionToolCallback<String, ToolExecuteResult> getFunctionToolCallback(TextFileService textFileService) {
-		return FunctionToolCallback.builder(TOOL_NAME, new TextFileOperator(textFileService))
+	public FunctionToolCallback<String, ToolExecuteResult> getFunctionToolCallback(TextFileService textFileService,
+			SmartFileOperator smartFileOperator) {
+		return FunctionToolCallback.builder(TOOL_NAME, new TextFileOperator(textFileService, smartFileOperator))
 			.description(TOOL_DESCRIPTION)
 			.inputSchema(PARAMETERS)
 			.inputType(String.class)
@@ -135,20 +148,27 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 				case "replace" -> {
 					String sourceText = (String) toolInputMap.get("source_text");
 					String targetText = (String) toolInputMap.get("target_text");
+
 					yield processResult(replaceText(planId, filePath, sourceText, targetText), "replace", filePath);
 				}
-				case "get_text" -> processResult(getCurrentText(planId, filePath), "get_text", filePath);
+				case "get_text" ->
+
+					processResult(getCurrentText(planId, filePath), "get_text", filePath);
 				case "append" -> {
 					String appendContent = (String) toolInputMap.get("content");
+
 					yield processResult(appendToFile(planId, filePath, appendContent), "append", filePath);
 				}
-				case "count_words" -> processResult(countWords(planId, filePath), "count_words", filePath);
+				case "count_words" ->
+
+					processResult(countWords(planId, filePath), "count_words", filePath);
 				case "get_description" -> getSavedDescriptionContent();
 				default -> {
 					textFileService.updateFileState(planId, filePath, "Error: Unknown action");
 					yield new ToolExecuteResult("Unknown action: " + action);
 				}
 			};
+
 		}
 		catch (Exception e) {
 			String planId = this.planId;
@@ -305,9 +325,9 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 
 		// 使用 InnerStorageService 获取自动存储的内容作为描述
 		try {
-			InnerStorageService storageService = getInnerStorageService();
+			InnerStorageService storageService = textFileService.getInnerStorageService();
 			java.util.List<InnerStorageService.FileInfo> autoStoredFiles = storageService
-				.searchAutoStoredFiles(getWorkingDirectoryPath(), planId, "");
+				.searchAutoStoredFiles(workingDirectoryPath, planId, "");
 
 			if (autoStoredFiles.isEmpty()) {
 				return new ToolExecuteResult("No auto-stored content found for the current plan");
@@ -322,7 +342,7 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 					.append(file.getSize())
 					.append(" bytes)\n");
 				try {
-					String content = storageService.readFileContent(getWorkingDirectoryPath(), planId,
+					String content = storageService.readFileContent(workingDirectoryPath, planId,
 							file.getRelativePath());
 					description.append(content).append("\n\n");
 				}
@@ -398,8 +418,8 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 		if (planId != null) {
 			log.info("Cleaning up text file resources for plan: {}", planId);
 			textFileService.closeFileForPlan(planId);
-			// 使用父类的清理方法来清理 InnerStorage 相关资源
-			cleanupPlan(planId);
+			// 使用 SmartFileOperator 的清理方法来清理 InnerStorage 相关资源
+			smartFileOperator.cleanupPlan(planId, workingDirectoryPath);
 		}
 	}
 
@@ -414,16 +434,6 @@ public class TextFileOperator extends AbstractSmartFileOperator implements ToolC
 	@Override
 	public String getServiceGroup() {
 		return "default-service-group";
-	}
-
-	@Override
-	protected String getWorkingDirectoryPath() {
-		return workingDirectoryPath;
-	}
-
-	@Override
-	protected String getCurrentPlanId() {
-		return planId;
 	}
 
 }

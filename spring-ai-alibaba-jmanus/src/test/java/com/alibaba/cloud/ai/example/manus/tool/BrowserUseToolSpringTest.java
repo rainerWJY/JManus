@@ -47,6 +47,7 @@ import com.alibaba.cloud.ai.example.manus.tool.browser.actions.BrowserRequestVO;
 import com.alibaba.cloud.ai.example.manus.tool.browser.actions.GetElementPositionByNameAction;
 import com.alibaba.cloud.ai.example.manus.tool.browser.actions.MoveToAndClickAction;
 import com.alibaba.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+import com.alibaba.cloud.ai.example.manus.tool.textOperator.SmartFileOperator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -76,6 +77,9 @@ class BrowserUseToolSpringTest {
 	@Autowired
 	private ManusProperties manusProperties;
 
+	@Autowired
+	private SmartFileOperator smartFileOperator;
+
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	@BeforeEach
@@ -84,7 +88,7 @@ class BrowserUseToolSpringTest {
 		manusProperties.setBrowserHeadless(false);
 		manusProperties.setBrowserDebug(true);
 		chromeDriverService.setManusProperties(manusProperties);
-		browserUseTool = new BrowserUseTool(chromeDriverService);
+		browserUseTool = new BrowserUseTool(chromeDriverService, smartFileOperator);
 		DummyBaseAgent agent = new DummyBaseAgent(llmService, planExecutionRecorder, manusProperties);
 		agent.setPlanId("plan_123123124124124");
 		browserUseTool.setPlanId(agent.getPlanId());
@@ -612,8 +616,6 @@ class BrowserUseToolSpringTest {
 			log.info("步骤8: 验证手机号输入是否成功");
 			browserUseTool.getDriver().getInteractiveElementRegistry().refresh(page);
 			state = browserUseTool.getCurrentState(page);
-			String updatedElements = (String) state.get("interactive_elements");
-			String[] updatedElementLines = updatedElements.split("\n");
 
 			log.info("CSDN登录测试完成");
 		}

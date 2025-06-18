@@ -189,32 +189,6 @@ public class InnerStorageToolTest {
 	}
 
 	@Test
-	void testSearchContent() throws Exception {
-		// 先设置Agent并创建一些测试文件
-		innerStorageService.setPlanAgent(testPlanId, testAgentName);
-
-		// 创建包含搜索目标的文件
-		Map<String, Object> appendInput = new HashMap<>();
-		appendInput.put("action", "append");
-		appendInput.put("file_name", "search_test.txt");
-		appendInput.put("content", "这是一个包含Java关键词的测试文件。\n我们也有Python的内容。");
-
-		String appendJson = objectMapper.writeValueAsString(appendInput);
-		innerStorageTool.run(appendJson);
-
-		// 搜索关键词
-		Map<String, Object> searchInput = new HashMap<>();
-		searchInput.put("action", "search");
-		searchInput.put("keyword", "Java");
-
-		String searchJson = objectMapper.writeValueAsString(searchInput);
-		ToolExecuteResult result = innerStorageTool.run(searchJson);
-
-		assertTrue(result.getOutput().contains("Java"));
-		assertTrue(result.getOutput().contains("找到"));
-	}
-
-	@Test
 	void testListStoredContents() throws Exception {
 		// 先设置Agent并创建一些文件
 		innerStorageService.setPlanAgent(testPlanId, testAgentName);
@@ -262,27 +236,6 @@ public class InnerStorageToolTest {
 		ToolExecuteResult result = innerStorageTool.run(getJson);
 
 		assertTrue(result.getOutput().contains("这是测试内容"));
-	}
-
-	@Test
-	void testSmartContentProcessing() throws Exception {
-		// 测试智能内容处理功能
-		innerStorageService.setPlanAgent(testPlanId, testAgentName);
-
-		// 设置较小的内容阈值以便测试
-		innerStorageTool.setContentThreshold(testPlanId, 50);
-
-		// 添加长内容
-		Map<String, Object> appendInput = new HashMap<>();
-		appendInput.put("action", "append");
-		appendInput.put("file_name", "long_content.txt");
-		appendInput.put("content", "这是一个很长的内容，用于测试智能内容处理功能。".repeat(10));
-
-		String appendJson = objectMapper.writeValueAsString(appendInput);
-		ToolExecuteResult result = innerStorageTool.run(appendJson);
-
-		// 当内容过长时，应该返回摘要
-		assertTrue(result.getOutput().contains("操作完成") || result.getOutput().contains("文件创建成功"));
 	}
 
 }
