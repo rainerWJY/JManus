@@ -129,129 +129,140 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 	/**
 	 * Internal input class for defining MapReduce tool input parameters
 	 */
-	public static class MapReduceInput {
+	   public static class MapReduceInput {
 
-		private String action;
+			   private String action;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("file_path")
-		private String filePath;
+			   @com.fasterxml.jackson.annotation.JsonProperty("file_path")
+			   private String filePath;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("file_name")
-		private String fileName;
+			   @com.fasterxml.jackson.annotation.JsonProperty("file_name")
+			   private String fileName;
 
-		private String content;
+			   private String content;
 
-		private List<List<Object>> data;
+			   private List<List<Object>> data;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("task_id")
-		private String taskId;
+			   @com.fasterxml.jackson.annotation.JsonProperty("task_id")
+			   private String taskId;
 
-		private String status;
+			   private String status;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("start_line")
-		private Integer startLine;
+			   @com.fasterxml.jackson.annotation.JsonProperty("split_strategy")
+			   private String splitStrategy;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("end_line")
-		private Integer endLine;
+			   @com.fasterxml.jackson.annotation.JsonProperty("start_line")
+			   private Integer startLine;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("source_text")
-		private String sourceText;
+			   @com.fasterxml.jackson.annotation.JsonProperty("end_line")
+			   private Integer endLine;
 
-		@com.fasterxml.jackson.annotation.JsonProperty("target_text")
-		private String targetText;
+			   @com.fasterxml.jackson.annotation.JsonProperty("source_text")
+			   private String sourceText;
 
-		public MapReduceInput() {
-		}
+			   @com.fasterxml.jackson.annotation.JsonProperty("target_text")
+			   private String targetText;
 
-		public String getAction() {
-			return action;
-		}
+			   public MapReduceInput() {
+			   }
 
-		public void setAction(String action) {
-			this.action = action;
-		}
+			   public String getAction() {
+					   return action;
+			   }
 
-		public String getFilePath() {
-			return filePath;
-		}
+			   public void setAction(String action) {
+					   this.action = action;
+			   }
 
-		public void setFilePath(String filePath) {
-			this.filePath = filePath;
-		}
+			   public String getFilePath() {
+					   return filePath;
+			   }
 
-		public String getFileName() {
-			return fileName;
-		}
+			   public void setFilePath(String filePath) {
+					   this.filePath = filePath;
+			   }
 
-		public void setFileName(String fileName) {
-			this.fileName = fileName;
-		}
+			   public String getFileName() {
+					   return fileName;
+			   }
 
-		public String getContent() {
-			return content;
-		}
+			   public void setFileName(String fileName) {
+					   this.fileName = fileName;
+			   }
 
-		public void setContent(String content) {
-			this.content = content;
-		}
+			   public String getContent() {
+					   return content;
+			   }
 
-		public String getTaskId() {
-			return taskId;
-		}
+			   public void setContent(String content) {
+					   this.content = content;
+			   }
 
-		public void setTaskId(String taskId) {
-			this.taskId = taskId;
-		}
+			   public String getTaskId() {
+					   return taskId;
+			   }
 
-		public String getStatus() {
-			return status;
-		}
+			   public void setTaskId(String taskId) {
+					   this.taskId = taskId;
+			   }
 
-		public void setStatus(String status) {
-			this.status = status;
-		}
+			   public String getStatus() {
+					   return status;
+			   }
 
-		public List<List<Object>> getData() {
-			return data;
-		}
+			   public void setStatus(String status) {
+					   this.status = status;
+			   }
 
-		public void setData(List<List<Object>> data) {
-			this.data = data;
-		}
+			   public List<List<Object>> getData() {
+					   return data;
+			   }
 
-		public Integer getStartLine() {
-			return startLine;
-		}
+			   public void setData(List<List<Object>> data) {
+					   this.data = data;
+			   }
 
-		public void setStartLine(Integer startLine) {
-			this.startLine = startLine;
-		}
+			   public String getSplitStrategy() {
+					   return splitStrategy;
+			   }
 
-		public Integer getEndLine() {
-			return endLine;
-		}
+			   public void setSplitStrategy(String splitStrategy) {
+					   this.splitStrategy = splitStrategy;
+			   }
 
-		public void setEndLine(Integer endLine) {
-			this.endLine = endLine;
-		}
+			   public Integer getStartLine() {
+					   return startLine;
+			   }
 
-		public String getSourceText() {
-			return sourceText;
-		}
+			   public void setStartLine(Integer startLine) {
+					   this.startLine = startLine;
+			   }
 
-		public void setSourceText(String sourceText) {
-			this.sourceText = sourceText;
-		}
+			   public Integer getEndLine() {
+					   return endLine;
+			   }
 
-		public String getTargetText() {
-			return targetText;
-		}
+			   public void setEndLine(Integer endLine) {
+					   this.endLine = endLine;
+			   }
 
-		public void setTargetText(String targetText) {
-			this.targetText = targetText;
-		}
+			   public String getSourceText() {
+					   return sourceText;
+			   }
 
-	}
+			   public void setSourceText(String sourceText) {
+					   this.sourceText = sourceText;
+			   }
+
+			   public String getTargetText() {
+					   return targetText;
+			   }
+
+			   public void setTargetText(String targetText) {
+					   this.targetText = targetText;
+			   }
+
+	   }
 
 	private static final String TOOL_NAME = "map_reduce_tool";
 
@@ -290,131 +301,136 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 		}
 		defaultColumnsBuilder.append("]");
 
-		return """
-				{
-				    "oneOf": [
-				        {
-				            "type": "object",
-				            "properties": {
-				                "action": {
-				                    "type": "string",
-				                    "const": "split_data"
-				                },
-				                "file_path": {
-				                    "type": "string",
-				                    "description": "要处理的文件或文件夹路径"
-				                },
-				                "terminate_columns": {
-				                    "type": "array",
-				                    "items": {
-				                        "type": "string"
-				                    },
-				                    "description": "终止结果的列名，用于结构化输出"
-				                }
-				            },
-				            "required": ["action", "file_path"],
-				            "additionalProperties": false
-				        },
-				        {
-				           "type": "object",
-				           "properties": {
-				               "action": {
-				                   "type": "string",
-				                   "const": "record_map_output"
-				               },
-				               "terminate_columns": {
-				                   "type": "array",
-				                   "items": {"type": "string"},
-				                   "description": "Column names for the structured output data",
-				                   "default": %s
-				               },
-				               "data": {
-				                   "type": "array",
-				                   "items": {
-				                       "type": "array",
-				                       "items": {}
-				                   },
-				                   "description": "Data rows corresponding to the columns"
-				               },
-				               "task_id": {
-				                   "type": "string",
-				                   "description": "任务ID，用于状态跟踪"
-				               },
-				               "status": {
-				                   "type": "string",
-				                   "enum": ["completed", "failed"],
-				                   "description": "任务状态"
-				               }
-				           },
-				           "required": ["action", "terminate_columns", "data", "task_id", "status"],
-				           "additionalProperties": false
-				       },
-				       {
-				           "type": "object",
-				           "properties": {
-				               "action": {
-				                   "type": "string",
-				                   "const": "get_lines"
-				               },
-				               "file_name": {
-				                   "type": "string",
-				                   "description": "文件名（带扩展名），从根计划目录获取"
-				               },
-				               "start_line": {
-				                   "type": "integer",
-				                   "description": "起始行号，默认为1"
-				               },
-				               "end_line": {
-				                   "type": "integer",
-				                   "description": "结束行号，默认为文件末尾"
-				               }
-				           },
-				           "required": ["action", "file_name"],
-				           "additionalProperties": false
-				       },
-				       {
-				           "type": "object",
-				           "properties": {
-				               "action": {
-				                   "type": "string",
-				                   "const": "append"
-				               },
-				               "file_name": {
-				                   "type": "string",
-				                   "description": "文件名（带扩展名），在根计划目录中操作"
-				               },
-				               "content": {
-				                   "type": "string",
-				                   "description": "要追加的内容"
-				               }
-				           },
-				           "required": ["action", "file_name", "content"],
-				           "additionalProperties": false
-				       },
-				       {
-				           "type": "object",
-				           "properties": {
-				               "action": {
-				                   "type": "string",
-				                   "const": "replace"
-				               },
-				               "file_name": {
-				                   "type": "string",
-				                   "description": "文件名（带扩展名），在根计划目录中操作"
-				               },
-				               "source_text": {
-				                   "type": "string",
-				                   "description": "要被替换的文本"
-				               },
-				               "target_text": {
-				                   "type": "string",
-				                   "description": "替换后的文本"
-				               }
-				           },
-				           "required": ["action", "file_name", "source_text", "target_text"],
-				           "additionalProperties": false
-				       }
-				    ]
+	   return """
+			   {
+				   "oneOf": [
+					   {
+						   "type": "object",
+						   "properties": {
+							   "action": {
+								   "type": "string",
+								   "const": "split_data"
+							   },
+							   "file_path": {
+								   "type": "string",
+								   "description": "要处理的文件或文件夹路径"
+							   },
+							   "split_strategy": {
+								   "type": "string",
+								   "enum": ["by_size", "by_line"],
+								   "description": "切分策略，by_size为按内容大小切分（默认），by_line为每行一个子任务"
+							   },
+							   "terminate_columns": {
+								   "type": "array",
+								   "items": {
+									   "type": "string"
+								   },
+								   "description": "终止结果的列名，用于结构化输出"
+							   }
+						   },
+						   "required": ["action", "file_path"],
+						   "additionalProperties": false
+					   },
+						{
+						   "type": "object",
+						   "properties": {
+							   "action": {
+								   "type": "string",
+								   "const": "record_map_output"
+							   },
+							   "terminate_columns": {
+								   "type": "array",
+								   "items": {"type": "string"},
+								   "description": "Column names for the structured output data",
+								   "default": %s
+							   },
+							   "data": {
+								   "type": "array",
+								   "items": {
+									   "type": "array",
+									   "items": {}
+								   },
+								   "description": "Data rows corresponding to the columns"
+							   },
+							   "task_id": {
+								   "type": "string",
+								   "description": "任务ID，用于状态跟踪"
+							   },
+							   "status": {
+								   "type": "string",
+								   "enum": ["completed", "failed"],
+								   "description": "任务状态"
+							   }
+						   },
+						   "required": ["action", "terminate_columns", "data", "task_id", "status"],
+						   "additionalProperties": false
+					   },
+					   {
+						   "type": "object",
+						   "properties": {
+							   "action": {
+								   "type": "string",
+								   "const": "get_lines"
+							   },
+							   "file_name": {
+								   "type": "string",
+								   "description": "文件名（带扩展名），从根计划目录获取"
+							   },
+							   "start_line": {
+								   "type": "integer",
+								   "description": "起始行号，默认为1"
+							   },
+							   "end_line": {
+								   "type": "integer",
+								   "description": "结束行号，默认为文件末尾"
+							   }
+						   },
+						   "required": ["action", "file_name"],
+						   "additionalProperties": false
+					   },
+					   {
+						   "type": "object",
+						   "properties": {
+							   "action": {
+								   "type": "string",
+								   "const": "append"
+							   },
+							   "file_name": {
+								   "type": "string",
+								   "description": "文件名（带扩展名），在根计划目录中操作"
+							   },
+							   "content": {
+								   "type": "string",
+								   "description": "要追加的内容"
+							   }
+						   },
+						   "required": ["action", "file_name", "content"],
+						   "additionalProperties": false
+					   },
+					   {
+						   "type": "object",
+						   "properties": {
+							   "action": {
+								   "type": "string",
+								   "const": "replace"
+							   },
+							   "file_name": {
+								   "type": "string",
+								   "description": "文件名（带扩展名），在根计划目录中操作"
+							   },
+							   "source_text": {
+								   "type": "string",
+								   "description": "要被替换的文本"
+							   },
+							   "target_text": {
+								   "type": "string",
+								   "description": "替换后的文本"
+							   }
+						   },
+						   "required": ["action", "file_name", "source_text", "target_text"],
+						   "additionalProperties": false
+					   }
+					]
 				}
 				""".formatted(defaultColumnsBuilder.toString());
 	}
@@ -525,14 +541,18 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 			}
 
 			return switch (action) {
-				case ACTION_SPLIT_DATA -> {
-					String filePath = input.getFilePath();
-					if (filePath == null) {
-						yield new ToolExecuteResult("Error: file_path parameter is required");
-					}
-
-					yield processFileOrDirectory(filePath);
-				}
+			   case ACTION_SPLIT_DATA -> {
+				   String filePath = input.getFilePath();
+				   if (filePath == null) {
+					   yield new ToolExecuteResult("Error: file_path parameter is required");
+				   }
+				   // 获取split_strategy参数，未传递时默认为by_size
+				   String splitStrategy = input.getSplitStrategy();
+				   if (splitStrategy == null || splitStrategy.isEmpty()) {
+					   splitStrategy = "by_size";
+				   }
+				   yield processFileOrDirectory(filePath, splitStrategy);
+			   }
 				case ACTION_RECORD_MAP_OUTPUT -> {
 					List<List<Object>> data = input.getData();
 					String taskId = input.getTaskId();
@@ -619,137 +639,171 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 	/**
 	 * Process complete workflow for file or directory: validate existence -> split data
 	 */
-	private ToolExecuteResult processFileOrDirectory(String filePath) {
-		try {
-			// Ensure planId exists, use default if empty
-			if (currentPlanId == null || currentPlanId.trim().isEmpty()) {
-				currentPlanId = DEFAULT_PLAN_ID_PREFIX + System.currentTimeMillis();
-				log.info("currentPlanId is empty, using default value: {}", currentPlanId);
-			}
+private ToolExecuteResult processFileOrDirectory(String filePath, String splitStrategy) {
+   try {
+	   // Ensure planId exists, use default if empty
+	   if (currentPlanId == null || currentPlanId.trim().isEmpty()) {
+		   currentPlanId = DEFAULT_PLAN_ID_PREFIX + System.currentTimeMillis();
+		   log.info("currentPlanId is empty, using default value: {}", currentPlanId);
+	   }
 
-			// Validate file or folder existence
-			// Use UnifiedDirectoryManager to get working directory path
-			String workingDirectoryPath = unifiedDirectoryManager.getWorkingDirectoryPath();
-			// Process based on path type
-			Path path = null;
-			boolean foundInInnerStorage = false;
+	   // Validate file or folder existence
+	   // Use UnifiedDirectoryManager to get working directory path
+	   String workingDirectoryPath = unifiedDirectoryManager.getWorkingDirectoryPath();
+	   // Process based on path type
+	   Path path = null;
+	   boolean foundInInnerStorage = false;
 
-			// First, try to find file in inner storage directory (similar to
-			// InnerStorageTool)
-			if (!Paths.get(filePath).isAbsolute()) {
-				// Check in inner storage first
-				Path planDir = getPlanDirectory(rootPlanId);
-				Path innerStoragePath = planDir.resolve(filePath);
+	   // First, try to find file in inner storage directory (similar to
+	   // InnerStorageTool)
+	   if (!Paths.get(filePath).isAbsolute()) {
+		   // Check in inner storage first
+		   Path planDir = getPlanDirectory(rootPlanId);
+		   Path innerStoragePath = planDir.resolve(filePath);
 
-				if (Files.exists(innerStoragePath)) {
-					path = innerStoragePath;
-					foundInInnerStorage = true;
-					log.info("Found file in inner storage: {}", path.toAbsolutePath());
-				}
-			}
+		   if (Files.exists(innerStoragePath)) {
+			   path = innerStoragePath;
+			   foundInInnerStorage = true;
+			   log.info("Found file in inner storage: {}", path.toAbsolutePath());
+		   }
+	   }
 
-			// If not found in inner storage, try working directory
-			if (path == null) {
-				if (Paths.get(filePath).isAbsolute()) {
-					// If absolute path, use directly
-					path = Paths.get(filePath);
-				}
-				else {
-					// If relative path, resolve based on working directory
-					path = Paths.get(workingDirectoryPath).resolve(filePath);
-				}
-				log.info("Checking file in working directory: {}", path.toAbsolutePath());
-			}
-			if (!Files.exists(path)) {
-				String errorMsg = "Error: File or directory does not exist: " + path.toAbsolutePath().toString();
-				if (!foundInInnerStorage) {
-					// Also check if file exists in inner storage and provide helpful
-					// message
-					Path planDir = getPlanDirectory(currentPlanId);
-					Path innerStoragePath = planDir.resolve(filePath);
-					if (Files.exists(innerStoragePath)) {
-						errorMsg += "\nNote: File exists in inner storage at: "
-								+ innerStoragePath.toAbsolutePath().toString();
-					}
-					else {
-						errorMsg += "\nSearched in: working directory and inner storage ("
-								+ planDir.toAbsolutePath().toString() + ")";
-					}
-				}
-				return new ToolExecuteResult(errorMsg);
-			}
+	   // If not found in inner storage, try working directory
+	   if (path == null) {
+		   if (Paths.get(filePath).isAbsolute()) {
+			   // If absolute path, use directly
+			   path = Paths.get(filePath);
+		   }
+		   else {
+			   // If relative path, resolve based on working directory
+			   path = Paths.get(workingDirectoryPath).resolve(filePath);
+		   }
+		   log.info("Checking file in working directory: {}", path.toAbsolutePath());
+	   }
+	   if (!Files.exists(path)) {
+		   String errorMsg = "Error: File or directory does not exist: " + path.toAbsolutePath().toString();
+		   if (!foundInInnerStorage) {
+			   // Also check if file exists in inner storage and provide helpful
+			   // message
+			   Path planDir = getPlanDirectory(currentPlanId);
+			   Path innerStoragePath = planDir.resolve(filePath);
+			   if (Files.exists(innerStoragePath)) {
+				   errorMsg += "\nNote: File exists in inner storage at: "
+						   + innerStoragePath.toAbsolutePath().toString();
+			   }
+			   else {
+				   errorMsg += "\nSearched in: working directory and inner storage ("
+						   + planDir.toAbsolutePath().toString() + ")";
+			   }
+		   }
+		   return new ToolExecuteResult(errorMsg);
+	   }
 
-			boolean isFile = Files.isRegularFile(path);
-			boolean isDirectory = Files.isDirectory(path);
+	   boolean isFile = Files.isRegularFile(path);
+	   boolean isDirectory = Files.isDirectory(path);
 
-			// Determine output directory - store to
-			// inner_storage/{rootPlanId}/{currentPlanId}/tasks directory
-			// This creates a hierarchical structure where sub-plan data is stored under
-			// the
-			// root plan
-			Path rootPlanDir = getPlanDirectory(rootPlanId);
-			Path currentPlanDir = rootPlanDir.resolve(currentPlanId);
-			Path tasksPath = currentPlanDir.resolve(TASKS_DIRECTORY_NAME);
-			ensureDirectoryExists(tasksPath);
+	   // Determine output directory - store to
+	   // inner_storage/{rootPlanId}/{currentPlanId}/tasks directory
+	   // This creates a hierarchical structure where sub-plan data is stored under
+	   // the
+	   // root plan
+	   Path rootPlanDir = getPlanDirectory(rootPlanId);
+	   Path currentPlanDir = rootPlanDir.resolve(currentPlanId);
+	   Path tasksPath = currentPlanDir.resolve(TASKS_DIRECTORY_NAME);
+	   ensureDirectoryExists(tasksPath);
 
-			List<String> allTaskDirs = new ArrayList<>();
+	   List<String> allTaskDirs = new ArrayList<>();
 
-			// Check if infinite context is enabled for enhanced processing
-			boolean infiniteContextEnabled = isInfiniteContextEnabled();
-			if (infiniteContextEnabled) {
-				log.info("Infinite context enabled for plan: {}, context size: {}", currentPlanId,
-						getInfiniteContextTaskContextSize());
-			}
+	   // Check if infinite context is enabled for enhanced processing
+	   boolean infiniteContextEnabled = isInfiniteContextEnabled();
+	   if (infiniteContextEnabled) {
+		   log.info("Infinite context enabled for plan: {}, context size: {}", currentPlanId,
+				   getInfiniteContextTaskContextSize());
+	   }
 
-			if (isFile && isTextFile(path.toString())) {
-				// Process single file - always use infinite context task context size
-				int splitSize = getInfiniteContextTaskContextSize();
-				SplitResult result = splitSingleFileToTasks(path, null, splitSize, tasksPath, null);
-				allTaskDirs.addAll(result.taskDirs);
+	   if (splitStrategy == null || splitStrategy.isEmpty()) splitStrategy = "by_size";
 
-			}
-			else if (isDirectory) {
-				// Process all text files in directory - always use infinite context task
-				// context size
-				int splitSize = getInfiniteContextTaskContextSize();
-				List<Path> textFiles = Files.list(path)
-					.filter(Files::isRegularFile)
-					.filter(p -> isTextFile(p.toString()))
-					.collect(Collectors.toList());
+	   if (isFile && isTextFile(path.toString())) {
+		   int splitSize = getInfiniteContextTaskContextSize();
+		   if ("by_line".equalsIgnoreCase(splitStrategy)) {
+			   SplitResult result = splitSingleFileByLine(path, splitSize, tasksPath);
+			   allTaskDirs.addAll(result.taskDirs);
+		   } else {
+			   SplitResult result = splitSingleFileToTasks(path, null, splitSize, tasksPath, null);
+			   allTaskDirs.addAll(result.taskDirs);
+		   }
+	   }
+	   else if (isDirectory) {
+		   int splitSize = getInfiniteContextTaskContextSize();
+		   List<Path> textFiles = Files.list(path)
+			   .filter(Files::isRegularFile)
+			   .filter(p -> isTextFile(p.toString()))
+			   .collect(Collectors.toList());
+		   for (Path file : textFiles) {
+			   if ("by_line".equalsIgnoreCase(splitStrategy)) {
+				   SplitResult result = splitSingleFileByLine(file, splitSize, tasksPath);
+				   allTaskDirs.addAll(result.taskDirs);
+			   } else {
+				   SplitResult result = splitSingleFileToTasks(file, null, splitSize, tasksPath, null);
+				   allTaskDirs.addAll(result.taskDirs);
+			   }
+		   }
+	   }
 
-				for (Path file : textFiles) {
-					SplitResult result = splitSingleFileToTasks(file, null, splitSize, tasksPath, null);
-					allTaskDirs.addAll(result.taskDirs);
-				}
-			}
+	   // Update split results
+	   if (sharedStateManager != null) {
+		   sharedStateManager.setSplitResults(currentPlanId, allTaskDirs);
+	   }
 
-			// Update split results
-			if (sharedStateManager != null) {
-				sharedStateManager.setSplitResults(currentPlanId, allTaskDirs);
-			}
+	   // Generate concise return result
+	   StringBuilder result = new StringBuilder();
+	   result.append("File splitting successful");
+	   result.append(", created ").append(allTaskDirs.size()).append(" task directories");
 
-			// Generate concise return result
-			StringBuilder result = new StringBuilder();
-			result.append("File splitting successful");
-			result.append(", created ").append(allTaskDirs.size()).append(" task directories");
+	   String resultStr = result.toString();
+	   if (sharedStateManager != null) {
+		   sharedStateManager.setLastOperationResult(currentPlanId, resultStr);
+	   }
 
-			String resultStr = result.toString();
-			if (sharedStateManager != null) {
-				sharedStateManager.setLastOperationResult(currentPlanId, resultStr);
-			}
+	   // Mark that split data operation has completed, allowing termination
+	   this.mapOutputRecorded = true;
 
-			// Mark that split data operation has completed, allowing termination
-			this.mapOutputRecorded = true;
+	   return new ToolExecuteResult(resultStr);
 
-			return new ToolExecuteResult(resultStr);
+   }
+   catch (Exception e) {
+	   String error = "Processing failed: " + e.getMessage();
+	   log.error(error, e);
+	   return new ToolExecuteResult(error);
+   }
+}
 
-		}
-		catch (Exception e) {
-			String error = "Processing failed: " + e.getMessage();
-			log.error(error, e);
-			return new ToolExecuteResult(error);
-		}
-	}
+   // 新增：按行切分，每行一个子任务，若一行超出size则切分
+   private SplitResult splitSingleFileByLine(Path filePath, int splitSize, Path tasksPath) throws IOException {
+	   List<String> taskDirs = new ArrayList<>();
+	   String fileName = filePath.getFileName().toString();
+	   try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+		   String line;
+		   while ((line = reader.readLine()) != null) {
+			   String lineWithNewline = line + "\n";
+			   if (lineWithNewline.length() <= splitSize) {
+				   String taskDir = createTaskDirectory(tasksPath, lineWithNewline, fileName);
+				   taskDirs.add(taskDir);
+			   } else {
+				   // 超过size，分块切
+				   int startIndex = 0;
+				   while (startIndex < lineWithNewline.length()) {
+					   int endIndex = Math.min(startIndex + splitSize, lineWithNewline.length());
+					   String chunk = lineWithNewline.substring(startIndex, endIndex);
+					   String taskDir = createTaskDirectory(tasksPath, chunk, fileName);
+					   taskDirs.add(taskDir);
+					   startIndex = endIndex;
+				   }
+			   }
+		   }
+	   }
+	   return new SplitResult(taskDirs);
+   }
 
 	/**
 	 * Split results class
