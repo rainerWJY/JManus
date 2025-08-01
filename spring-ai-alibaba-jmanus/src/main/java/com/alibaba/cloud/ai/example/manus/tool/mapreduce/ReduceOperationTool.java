@@ -39,7 +39,11 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 
 	private static final Logger log = LoggerFactory.getLogger(ReduceOperationTool.class);
 
+<<<<<<< HEAD
 	// ==================== 配置常量 ====================
+=======
+	// ==================== Configuration Constants ====================
+>>>>>>> main
 
 	/**
 	 * Fixed file name for reduce operations
@@ -84,6 +88,7 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 				Reduce operation tool for MapReduce workflow file manipulation.
 				Aggregates and merges data from multiple Map tasks and generates final consolidated output.
 
+<<<<<<< HEAD
 				**重要参数说明：**
 				- has_value: 布尔值，表示是否有有效数据需要写入
 				  - 如果没有找到任何有效数据，设置为 false
@@ -92,12 +97,23 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 
 				**IMPORTANT**: 操作完成后工具将自动终止。
 				请在单次调用中完成所有内容输出。
+=======
+				**Important Parameter Description:**
+				- has_value: Boolean value indicating whether there is valid data to write
+				  - If no valid data is found, set to false
+				  - If there is data to output, set to true
+				- data: Must provide data when has_value is true
+
+				**IMPORTANT**: Tool will automatically terminate after operation completion.
+				Please complete all content output in a single call.
+>>>>>>> main
 				""";
 
 		if (terminateColumns != null && !terminateColumns.isEmpty()) {
 			String columnsFormat = String.join(", ", terminateColumns);
 			baseDescription += String.format("""
 
+<<<<<<< HEAD
 					**数据格式要求（当 has_value=true 时）：**
 					您必须按照以下固定格式提供数据，每行数据包含：[%s]
 
@@ -109,6 +125,19 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 					""", columnsFormat, terminateColumns.get(0),
 					terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据", terminateColumns.get(0),
 					terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据");
+=======
+					**Data Format Requirements (when has_value=true):**
+					You must provide data in the following fixed format, each line containing: [%s]
+
+					Example format:
+					[
+					  ["%s Example 1", "%s Example 1"],
+					  ["%s Example 2", "%s Example 2"]
+					]
+					""", columnsFormat, terminateColumns.get(0),
+					terminateColumns.size() > 1 ? terminateColumns.get(1) : "data", terminateColumns.get(0),
+					terminateColumns.size() > 1 ? terminateColumns.get(1) : "data");
+>>>>>>> main
 		}
 
 		return baseDescription;
@@ -116,14 +145,25 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 
 	/**
 	 * Generate parameters JSON for ReduceOperationTool with predefined columns format
+<<<<<<< HEAD
 	 * @param terminateColumns the columns specification (e.g., "url,说明")
+=======
+	 * @param terminateColumns the columns specification (e.g., "url,description")
+>>>>>>> main
 	 * @return JSON string for parameters schema
 	 */
 	private static String generateParametersJson(List<String> terminateColumns) {
 		// Generate columns description from terminateColumns
+<<<<<<< HEAD
 		String columnsDesc = "数据行列表";
 		if (terminateColumns != null && !terminateColumns.isEmpty()) {
 			columnsDesc = "数据行列表，每行按照以下格式：[" + String.join(", ", terminateColumns) + "]";
+=======
+		String columnsDesc = "data row list";
+		if (terminateColumns != null && !terminateColumns.isEmpty()) {
+			columnsDesc = "data row list, each row in the following format: [" + String.join(", ", terminateColumns)
+					+ "]";
+>>>>>>> main
 		}
 
 		return """
@@ -132,7 +172,11 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 				    "properties": {
 				        "has_value": {
 				            "type": "boolean",
+<<<<<<< HEAD
 				            "description": "是否有有效数据需要写入。如果没有找到任何有效数据设置为false，有数据时设置为true"
+=======
+				            "description": "Whether there is valid data to write. Set to false if no valid data is found, set to true when there is data"
+>>>>>>> main
 				        },
 				        "data": {
 				            "type": "array",
@@ -140,30 +184,52 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 				                "type": "array",
 				                "items": {"type": "string"}
 				            },
+<<<<<<< HEAD
 				            "description": "%s（仅当has_value为true时需要提供）"
+=======
+				            "description": "%s (only required when has_value is true)"
+>>>>>>> main
 				        }
 				    },
 				    "required": ["has_value"],
 				    "additionalProperties": false
 				}
+<<<<<<< HEAD
 				""".formatted(columnsDesc);
+=======
+				"""
+			.formatted(columnsDesc);
+>>>>>>> main
 	}
 
 	private UnifiedDirectoryManager unifiedDirectoryManager;
 
+<<<<<<< HEAD
 	// 共享状态管理器，用于管理多个Agent实例间的共享状态
+=======
+	// Shared state manager for managing shared state between multiple Agent instances
+>>>>>>> main
 	private MapReduceSharedStateManager sharedStateManager;
 
 	// Class-level terminate columns configuration - takes precedence over input
 	// parameters
 	private final List<String> terminateColumns;
 
+<<<<<<< HEAD
 	// ==================== TerminableTool 相关字段 ====================
 
 	// 线程安全锁，用于保护append操作和终止状态
 	private final ReentrantLock operationLock = new ReentrantLock();
 
 	// 终止状态相关字段
+=======
+	// ==================== TerminableTool Related Fields ====================
+
+	// Thread-safe lock to protect append operations and termination state
+	private final ReentrantLock operationLock = new ReentrantLock();
+
+	// Termination state related fields
+>>>>>>> main
 	private volatile boolean isTerminated = false;
 
 	private String lastTerminationMessage = "";
@@ -180,7 +246,11 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 设置共享状态管理器
+=======
+	 * Set shared state manager
+>>>>>>> main
 	 */
 	public void setSharedStateManager(MapReduceSharedStateManager sharedStateManager) {
 		this.sharedStateManager = sharedStateManager;
@@ -301,6 +371,7 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 			List<Object> row = data.get(i);
 			if (row.size() != expectedColumnCount) {
 				String error = String.format("""
+<<<<<<< HEAD
 						数据结构不一致！
 						期望的列数: %d
 						实际第%d行的列数: %d
@@ -316,6 +387,23 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 						""", expectedColumnCount, i + 1, row.size(), String.join(", ", terminateColumns),
 						terminateColumns.get(0), terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据",
 						terminateColumns.get(0), terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据");
+=======
+						Data structure inconsistent!
+						Expected column count: %d
+						Actual column count for row %d: %d
+
+						**Required data structure:**
+						Each row must contain: [%s]
+
+						Example format:
+						[
+						  ["%s Example1", "%s Example1"],
+						  ["%s Example2", "%s Example2"]
+						]
+						""", expectedColumnCount, i + 1, row.size(), String.join(", ", terminateColumns),
+						terminateColumns.get(0), terminateColumns.size() > 1 ? terminateColumns.get(1) : "data",
+						terminateColumns.get(0), terminateColumns.size() > 1 ? terminateColumns.get(1) : "data");
+>>>>>>> main
 				return new ToolExecuteResult(error);
 			}
 		}
@@ -400,7 +488,11 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 				sharedStateManager.setLastOperationResult(currentPlanId, resultStr);
 			}
 
+<<<<<<< HEAD
 			// 设置终止状态
+=======
+			// Set termination status
+>>>>>>> main
 			this.isTerminated = true;
 			this.lastTerminationMessage = "Append operation completed successfully";
 			this.terminationTimestamp = java.time.LocalDateTime.now().toString();
@@ -411,7 +503,11 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 		}
 		catch (IOException e) {
 			log.error("Failed to append to file", e);
+<<<<<<< HEAD
 			// 即使失败也设置终止状态
+=======
+			// Set termination status even if failed
+>>>>>>> main
 			this.isTerminated = true;
 			this.lastTerminationMessage = "Append operation failed: " + e.getMessage();
 			this.terminationTimestamp = java.time.LocalDateTime.now().toString();
@@ -481,45 +577,74 @@ public class ReduceOperationTool extends AbstractBaseTool<ReduceOperationTool.Re
 
 	@Override
 	public boolean canTerminate() {
+<<<<<<< HEAD
 		// 检查是否已经执行了append操作，如果执行了则可以终止
+=======
+		// Check if append operation has been executed, if so then can terminate
+>>>>>>> main
 		return isTerminated;
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 获取终止状态信息，包含原有状态和终止相关状态
+=======
+	 * Get termination status information, including original status and
+	 * termination-related status
+>>>>>>> main
 	 */
 	@Override
 	public String getCurrentToolStateString() {
 		StringBuilder sb = new StringBuilder();
 
+<<<<<<< HEAD
 		// 原有的共享状态信息
+=======
+		// Original shared state information
+>>>>>>> main
 		if (sharedStateManager != null && currentPlanId != null) {
 			sb.append(sharedStateManager.getCurrentToolStateString(currentPlanId));
 			sb.append("\n\n");
 		}
 
+<<<<<<< HEAD
 		// 简化的终止状态信息
+=======
+		// Simplified termination status information
+>>>>>>> main
 		sb.append(String.format("ReduceOperationTool: %s", isTerminated ? "🛑 Terminated" : "⚡ Active"));
 
 		return sb.toString();
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 检查工具是否已经终止
+=======
+	 * Check if tool has already terminated
+>>>>>>> main
 	 */
 	public boolean isTerminated() {
 		return isTerminated;
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 获取最后的终止消息
+=======
+	 * Get last termination message
+>>>>>>> main
 	 */
 	public String getLastTerminationMessage() {
 		return lastTerminationMessage;
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 获取终止时间戳
+=======
+	 * Get termination timestamp
+>>>>>>> main
 	 */
 	public String getTerminationTimestamp() {
 		return terminationTimestamp;

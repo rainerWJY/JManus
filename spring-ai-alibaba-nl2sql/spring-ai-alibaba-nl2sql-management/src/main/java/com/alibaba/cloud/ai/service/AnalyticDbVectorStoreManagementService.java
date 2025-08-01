@@ -15,18 +15,18 @@
  */
 package com.alibaba.cloud.ai.service;
 
-import com.alibaba.cloud.ai.analyticdb.AnalyticDbVectorStoreProperties;
-import com.alibaba.cloud.ai.config.ConditionalOnADBEnabled;
-import com.alibaba.cloud.ai.dbconnector.DbAccessor;
-import com.alibaba.cloud.ai.dbconnector.DbConfig;
-import com.alibaba.cloud.ai.dbconnector.bo.ColumnInfoBO;
-import com.alibaba.cloud.ai.dbconnector.bo.DbQueryParameter;
-import com.alibaba.cloud.ai.dbconnector.bo.ForeignKeyInfoBO;
-import com.alibaba.cloud.ai.dbconnector.bo.TableInfoBO;
+import com.alibaba.cloud.ai.annotation.ConditionalOnADBEnabled;
+import com.alibaba.cloud.ai.connector.accessor.Accessor;
+import com.alibaba.cloud.ai.connector.bo.ColumnInfoBO;
+import com.alibaba.cloud.ai.connector.bo.DbQueryParameter;
+import com.alibaba.cloud.ai.connector.bo.ForeignKeyInfoBO;
+import com.alibaba.cloud.ai.connector.bo.TableInfoBO;
+import com.alibaba.cloud.ai.connector.config.DbConfig;
 import com.alibaba.cloud.ai.request.DeleteRequest;
 import com.alibaba.cloud.ai.request.EvidenceRequest;
 import com.alibaba.cloud.ai.request.SchemaInitRequest;
 import com.alibaba.cloud.ai.request.SearchRequest;
+import com.alibaba.cloud.ai.vectorstore.analyticdb.AnalyticDbVectorStoreProperties;
 import com.aliyun.gpdb20160503.Client;
 import com.aliyun.gpdb20160503.models.DeleteCollectionDataRequest;
 import com.aliyun.gpdb20160503.models.DeleteCollectionDataResponse;
@@ -72,7 +72,8 @@ public class AnalyticDbVectorStoreManagementService implements VectorStoreManage
 	private VectorStore vectorStore;
 
 	@Autowired
-	private DbAccessor dbAccessor;
+	@Qualifier("mysqlAccessor")
+	private Accessor dbAccessor;
 
 	@Autowired
 	private AnalyticDbVectorStoreProperties analyticDbVectorStoreProperties;

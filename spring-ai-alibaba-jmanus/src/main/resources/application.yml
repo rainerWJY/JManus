@@ -12,6 +12,7 @@ spring:
     lazy-initialization: false
   aop:
     proxy-target-class: true
+<<<<<<< HEAD
   ai:
     openai:
       base-url: https://dashscope.aliyuncs.com/compatible-mode
@@ -22,6 +23,8 @@ spring:
     mcp:
       client:
         enabled: false
+=======
+>>>>>>> main
   # Hikari Configuration
   datasource:
     hikari:
@@ -51,3 +54,9 @@ logging:
 
 namespace:
   value: default
+
+agent:
+  # Initialize save agent on startup
+  init: true
+  # Serialize: fastjson | jackson
+  serialize: jackson

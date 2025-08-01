@@ -15,7 +15,10 @@
  */
 package com.alibaba.cloud.ai.example.manus.tool.mapreduce;
 
+<<<<<<< HEAD
 import java.io.File;
+=======
+>>>>>>> main
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +43,11 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 
 	private static final Logger log = LoggerFactory.getLogger(MapOutputTool.class);
 
+<<<<<<< HEAD
 	// ==================== 配置常量 ====================
+=======
+	// ==================== Configuration Constants ====================
+>>>>>>> main
 
 	/**
 	 * Task directory name All tasks are stored under this directory
@@ -70,6 +77,12 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	 */
 	public static class MapOutputInput {
 
+<<<<<<< HEAD
+=======
+		@com.fasterxml.jackson.annotation.JsonProperty("task_id")
+		private String taskId;
+
+>>>>>>> main
 		private List<List<Object>> data;
 
 		@com.fasterxml.jackson.annotation.JsonProperty("has_value")
@@ -78,6 +91,17 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 		public MapOutputInput() {
 		}
 
+<<<<<<< HEAD
+=======
+		public String getTaskId() {
+			return taskId;
+		}
+
+		public void setTaskId(String taskId) {
+			this.taskId = taskId;
+		}
+
+>>>>>>> main
 		public List<List<Object>> getData() {
 			return data;
 		}
@@ -101,6 +125,7 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	private static String getToolDescription(List<String> terminateColumns) {
 		String baseDescription = """
 				Map output recording tool for MapReduce workflow.
+<<<<<<< HEAD
 				接受 Map 阶段处理完成后的内容，自动生成文件名并创建输出文件。
 				记录任务状态并管理结构化数据输出。
 
@@ -109,12 +134,24 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 				  - 如果没有找到任何有效数据，设置为 false
 				  - 如果有数据需要输出，设置为 true
 				- data: 当 has_value 为 true 时必须提供数据
+=======
+				Accept content after Map phase processing completion, automatically generate filename and create output file.
+				Record task status and manage structured data output.
+
+				**Important Parameter Description:**
+				- task_id: String, task ID identifier for identifying the currently processing Map task (required)
+				- has_value: Boolean value indicating whether there is valid data
+				  - If no valid data is found, set to false
+				  - If there is data to output, set to true
+				- data: Must provide data when has_value is true
+>>>>>>> main
 				""";
 
 		if (terminateColumns != null && !terminateColumns.isEmpty()) {
 			String columnsFormat = String.join(", ", terminateColumns);
 			baseDescription += String.format("""
 
+<<<<<<< HEAD
 					**数据格式要求（当 has_value=true 时）：**
 					您必须按照以下固定格式提供数据，每行数据包含：[%s]
 
@@ -126,6 +163,19 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 					""", columnsFormat, terminateColumns.get(0),
 					terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据", terminateColumns.get(0),
 					terminateColumns.size() > 1 ? terminateColumns.get(1) : "数据");
+=======
+					**Data Format Requirements (when has_value=true):**
+					You must provide data in the following fixed format, each line containing: [%s]
+
+					Example format:
+					[
+					  ["%s Example1", "%s Example1"],
+					  ["%s Example2", "%s Example2"]
+					]
+					""", columnsFormat, terminateColumns.get(0),
+					terminateColumns.size() > 1 ? terminateColumns.get(1) : "data", terminateColumns.get(0),
+					terminateColumns.size() > 1 ? terminateColumns.get(1) : "data");
+>>>>>>> main
 		}
 
 		return baseDescription;
@@ -133,23 +183,44 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 
 	/**
 	 * Generate parameters JSON for MapOutputTool with predefined columns format
+<<<<<<< HEAD
 	 * @param terminateColumns the columns specification (e.g., "url,说明")
+=======
+	 * @param terminateColumns the columns specification (e.g., "url,description")
+>>>>>>> main
 	 * @return JSON string for parameters schema
 	 */
 	private static String generateParametersJson(List<String> terminateColumns) {
 		// Generate columns description from terminateColumns
+<<<<<<< HEAD
 		String columnsDesc = "数据行列表";
 		if (terminateColumns != null && !terminateColumns.isEmpty()) {
 			columnsDesc = "数据行列表，每行按照以下格式：[" + String.join(", ", terminateColumns) + "]";
+=======
+		String columnsDesc = "data row list";
+		if (terminateColumns != null && !terminateColumns.isEmpty()) {
+			columnsDesc = "data row list, each row in the following format: [" + String.join(", ", terminateColumns)
+					+ "]";
+>>>>>>> main
 		}
 
 		return """
 				{
 				    "type": "object",
 				    "properties": {
+<<<<<<< HEAD
 				        "has_value": {
 				            "type": "boolean",
 				            "description": "是否有有效数据。如果没有找到任何有效数据设置为false，有数据时设置为true"
+=======
+				        "task_id": {
+				            "type": "string",
+				            "description": "Task ID identifier for identifying the currently processing Map task"
+				        },
+				        "has_value": {
+				            "type": "boolean",
+				            "description": "Whether there is valid data. Set to false if no valid data is found, set to true when there is data"
+>>>>>>> main
 				        },
 				        "data": {
 				            "type": "array",
@@ -157,6 +228,7 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 				                "type": "array",
 				                "items": {"type": "string"}
 				            },
+<<<<<<< HEAD
 				            "description": "%s（仅当has_value为true时需要提供）"
 				        }
 				    },
@@ -164,11 +236,25 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 				    "additionalProperties": false
 				}
 				""".formatted(columnsDesc);
+=======
+				            "description": "%s (only required when has_value is true)"
+				        }
+				    },
+				    "required": ["task_id", "has_value"],
+				    "additionalProperties": false
+				}
+				"""
+			.formatted(columnsDesc);
+>>>>>>> main
 	}
 
 	private UnifiedDirectoryManager unifiedDirectoryManager;
 
+<<<<<<< HEAD
 	// 共享状态管理器，用于管理多个Agent实例间的共享状态
+=======
+	// Shared state manager for managing shared state between multiple Agent instances
+>>>>>>> main
 	private MapReduceSharedStateManager sharedStateManager;
 
 	// Class-level terminate columns configuration - takes precedence over input
@@ -178,15 +264,27 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	// Track if map output recording has completed, allowing termination
 	private volatile boolean mapOutputRecorded = false;
 
+<<<<<<< HEAD
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// Main constructor with List<String> terminateColumns
 	public MapOutputTool(String planId, ManusProperties manusProperties, MapReduceSharedStateManager sharedStateManager,
 			UnifiedDirectoryManager unifiedDirectoryManager, List<String> terminateColumns) {
+=======
+	private final ObjectMapper objectMapper;
+
+	// Main constructor with List<String> terminateColumns
+	public MapOutputTool(String planId, ManusProperties manusProperties, MapReduceSharedStateManager sharedStateManager,
+			UnifiedDirectoryManager unifiedDirectoryManager, List<String> terminateColumns, ObjectMapper objectMapper) {
+>>>>>>> main
 		this.currentPlanId = planId;
 		this.unifiedDirectoryManager = unifiedDirectoryManager;
 		this.sharedStateManager = sharedStateManager;
 		this.terminateColumns = terminateColumns;
+<<<<<<< HEAD
+=======
+		this.objectMapper = objectMapper;
+>>>>>>> main
 	}
 
 	/**
@@ -200,7 +298,11 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 设置共享状态管理器
+=======
+	 * Set shared state manager
+>>>>>>> main
 	 */
 	public void setSharedStateManager(MapReduceSharedStateManager sharedStateManager) {
 		this.sharedStateManager = sharedStateManager;
@@ -249,11 +351,25 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	 */
 	@Override
 	public ToolExecuteResult run(MapOutputInput input) {
+<<<<<<< HEAD
 		log.info("MapOutputTool input: hasValue={}", input.isHasValue());
 		try {
 			List<List<Object>> data = input.getData();
 			boolean hasValue = input.isHasValue();
 
+=======
+		log.info("MapOutputTool input: taskId={}, hasValue={}", input.getTaskId(), input.isHasValue());
+		try {
+			String taskId = input.getTaskId();
+			List<List<Object>> data = input.getData();
+			boolean hasValue = input.isHasValue();
+
+			// Validate taskId
+			if (taskId == null || taskId.trim().isEmpty()) {
+				return new ToolExecuteResult("Error: task_id parameter is required");
+			}
+
+>>>>>>> main
 			// Use class-level terminateColumns
 			List<String> effectiveTerminateColumns = this.terminateColumns;
 			if (effectiveTerminateColumns == null || effectiveTerminateColumns.isEmpty()) {
@@ -268,11 +384,19 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 				}
 				// Convert structured data to content string
 				String content = formatStructuredData(effectiveTerminateColumns, data);
+<<<<<<< HEAD
 				return recordMapTaskOutput(content);
 			}
 			else {
 				// When hasValue is false, create empty output
 				return recordMapTaskOutput("");
+=======
+				return recordMapTaskOutput(content, taskId);
+			}
+			else {
+				// When hasValue is false, create empty output
+				return recordMapTaskOutput("", taskId);
+>>>>>>> main
 			}
 
 		}
@@ -290,7 +414,10 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	 */
 	private String formatStructuredData(List<String> terminateColumns, List<List<Object>> data) {
 		StringBuilder sb = new StringBuilder();
+<<<<<<< HEAD
 		sb.append("Structured Map output data:\n");
+=======
+>>>>>>> main
 		sb.append("Columns: ").append(terminateColumns).append("\n");
 		sb.append("Data:\n");
 		for (List<Object> row : data) {
@@ -300,10 +427,17 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Record Map task output result with completed status by default Task ID is obtained
 	 * from the current execution context
 	 */
 	private ToolExecuteResult recordMapTaskOutput(String content) {
+=======
+	 * Record Map task output result with completed status by default Task ID is provided
+	 * as parameter instead of being obtained from the current execution context
+	 */
+	private ToolExecuteResult recordMapTaskOutput(String content, String taskId) {
+>>>>>>> main
 		try {
 			// Get timeout configuration for this operation
 			Integer timeout = getMapReduceTimeout();
@@ -313,6 +447,7 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 			if (currentPlanId == null || currentPlanId.trim().isEmpty()) {
 				return new ToolExecuteResult("Error: currentPlanId not set, cannot record task status");
 			}
+<<<<<<< HEAD
 
 			// Get current taskId by finding the most recent task directory without
 			// output.md
@@ -320,6 +455,11 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 
 			if (taskId == null || taskId.trim().isEmpty()) {
 				return new ToolExecuteResult("Error: No current task ID available for recording output");
+=======
+			// Validate taskId parameter
+			if (taskId == null || taskId.trim().isEmpty()) {
+				return new ToolExecuteResult("Error: taskId parameter is required for recording output");
+>>>>>>> main
 			}
 
 			// Locate task directory - use hierarchical structure:
@@ -420,6 +560,7 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Find the current task ID by looking for task directories without output.md file
 	 * This helps identify which task is currently being processed
 	 */
@@ -487,6 +628,8 @@ public class MapOutputTool extends AbstractBaseTool<MapOutputTool.MapOutputInput
 	}
 
 	/**
+=======
+>>>>>>> main
 	 * Get inner storage root directory path
 	 */
 	private Path getInnerStorageRoot() {

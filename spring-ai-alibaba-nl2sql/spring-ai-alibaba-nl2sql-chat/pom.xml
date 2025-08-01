@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>spring-ai-alibaba-nl2sql-chat</artifactId>
-    <name>Chat Service For Spring AI Alibaba</name>
+    <name>Spring AI Alibaba NL2SQL Chat</name>
     <url>https://github.com/alibaba/spring-ai-alibaba</url>
     <scm>
         <connection>git://github.com/alibaba/spring-ai-alibaba.git</connection>
@@ -149,6 +149,15 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-store-analyticdb</artifactId>
+            <version>${spring-ai-alibaba.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
@@ -177,6 +186,7 @@
                         </goals>
                         <configuration>
                             <attach>false</attach>
+                            <skip>true</skip>
                         </configuration>
                     </execution>
                 </executions>

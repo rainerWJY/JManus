@@ -1,4 +1,4 @@
-<!-- 
+<!--
  * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,7 +93,7 @@
               </div>
             </div>
             <div class="task-time">
-              {{ getRelativeTimeString(new Date(template.updateTime || template.createTime)) }}
+              {{ getRelativeTimeString(sidebarStore.parseDateTime(template.updateTime || template.createTime)) }}
             </div>
             <div class="task-actions">
               <button
@@ -274,15 +274,25 @@ const formattedJsonContent = computed({
   get() {
     try {
       if (!sidebarStore.jsonContent) return ''
+<<<<<<< HEAD
       
       const parsed = JSON.parse(sidebarStore.jsonContent)
       
+=======
+
+      const parsed = JSON.parse(sidebarStore.jsonContent)
+
+>>>>>>> main
       // Remove hidden fields for display
       const filtered = { ...parsed }
       hiddenFields.forEach(field => {
         delete filtered[field]
       })
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> main
       // Return formatted JSON
       return JSON.stringify(filtered, null, 2)
     } catch {
@@ -296,9 +306,15 @@ const formattedJsonContent = computed({
         sidebarStore.jsonContent = ''
         return
       }
+<<<<<<< HEAD
       
       const parsed = JSON.parse(value)
       
+=======
+
+      const parsed = JSON.parse(value)
+
+>>>>>>> main
       // Get original data to preserve hidden fields
       let originalData: any = {}
       try {
@@ -306,7 +322,11 @@ const formattedJsonContent = computed({
       } catch {
         // If original is not valid JSON, start fresh
       }
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> main
       // Merge user input with preserved hidden fields
       const merged: any = { ...parsed }
       hiddenFields.forEach(field => {
@@ -314,7 +334,11 @@ const formattedJsonContent = computed({
           merged[field] = originalData[field]
         }
       })
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> main
       sidebarStore.jsonContent = JSON.stringify(merged)
     } catch {
       // If parsing fails, store as-is
@@ -324,8 +348,8 @@ const formattedJsonContent = computed({
 })
 
 // Use pinia store
-// 使用 TS 对象实现的 sidebarStore
-// 直接使用 sidebarStore 实例，无需 pinia
+// Use TS object-implemented sidebarStore
+// Use sidebarStore instance directly, no pinia needed
 
 // Emits - Keep some events for communication with external components
 const emit = defineEmits<{
@@ -344,7 +368,7 @@ const handleSaveTemplate = async () => {
       alert(t('sidebar.saveStatus', { message: saveResult.message }))
     }
   } catch (error: any) {
-    console.error('保存计划修改失败:', error)
+    console.error('Failed to save plan modifications:', error)
     alert(error.message || t('sidebar.saveFailed'))
   }
 }
@@ -354,7 +378,7 @@ const handleGeneratePlan = async () => {
     await sidebarStore.generatePlan()
     alert(t('sidebar.generateSuccess', { templateId: sidebarStore.selectedTemplate?.id ?? t('sidebar.unknown') }))
   } catch (error: any) {
-    console.error('生成计划失败:', error)
+    console.error('Failed to generate plan:', error)
     alert(t('sidebar.generateFailed') + ': ' + error.message)
   }
 }
@@ -364,7 +388,7 @@ const handleUpdatePlan = async () => {
     await sidebarStore.updatePlan()
     alert(t('sidebar.updateSuccess'))
   } catch (error: any) {
-    console.error('更新计划失败:', error)
+    console.error('Failed to update plan:', error)
     alert(t('sidebar.updateFailed') + ': ' + error.message)
   }
 }
@@ -380,15 +404,15 @@ const handleExecutePlan = async () => {
       return
     }
 
-    console.log('[Sidebar] 触发计划执行请求:', planData)
+    console.log('[Sidebar] Triggering plan execution request:', planData)
 
-    // 发送计划执行事件给聊天组件
+    // Send plan execution event to chat component
     console.log('[Sidebar] Emitting planExecutionRequested event')
     emit('planExecutionRequested', planData)
 
     console.log('[Sidebar] Event emitted')
   } catch (error: any) {
-    console.error('执行计划出错:', error)
+    console.error('Error executing plan:', error)
     alert(t('sidebar.executeFailed') + ': ' + error.message)
   } finally {
     sidebarStore.finishPlanExecution()
@@ -397,6 +421,12 @@ const handleExecutePlan = async () => {
 
 // Utility functions
 const getRelativeTimeString = (date: Date): string => {
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date received:', date)
+    return t('time.unknown')
+  }
+
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMinutes = Math.floor(diffMs / 60000)
@@ -432,7 +462,7 @@ defineExpose({
 <style scoped>
 .sidebar-wrapper {
   position: relative;
-  width: 500px;
+  width: 600px;
   height: 100vh;
   background: rgba(255, 255, 255, 0.05);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -633,6 +663,7 @@ defineExpose({
         }
 
         .json-editor {
+<<<<<<< HEAD
           min-height: 200px;
           font-size: 11px;
           line-height: 1.5;
@@ -641,6 +672,16 @@ defineExpose({
           word-break: normal;
           tab-size: 2;
           font-variant-ligatures: none;
+=======
+            min-height: 200px;
+            font-size: 11px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            tab-size: 2;
+            font-variant-ligatures: none;
+>>>>>>> main
         }
 
         .generator-content {

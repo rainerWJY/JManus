@@ -41,7 +41,11 @@ public class DataSplitTool extends AbstractBaseTool<DataSplitTool.DataSplitInput
 
 	private static final Logger log = LoggerFactory.getLogger(DataSplitTool.class);
 
+<<<<<<< HEAD
 	// ==================== 配置常量 ====================
+=======
+	// ==================== Configuration Constants ====================
+>>>>>>> main
 
 	/**
 	 * Default plan ID prefix When planId is empty, use this prefix + timestamp to
@@ -127,14 +131,22 @@ public class DataSplitTool extends AbstractBaseTool<DataSplitTool.DataSplitInput
 			    "properties": {
 			        "file_path": {
 			            "type": "string",
+<<<<<<< HEAD
 			            "description": "要处理的文件或文件夹路径"
+=======
+			            "description": "File or folder path to process"
+>>>>>>> main
 			        },
 			        "terminate_columns": {
 			            "type": "array",
 			            "items": {
 			                "type": "string"
 			            },
+<<<<<<< HEAD
 			            "description": "终止结果的列名，用于结构化输出"
+=======
+			            "description": "Column names for termination results, used for structured output"
+>>>>>>> main
 			        }
 			    },
 			    "required": ["file_path"],
@@ -146,24 +158,43 @@ public class DataSplitTool extends AbstractBaseTool<DataSplitTool.DataSplitInput
 
 	private ManusProperties manusProperties;
 
+<<<<<<< HEAD
 	// 共享状态管理器，用于管理多个Agent实例间的共享状态
+=======
+	// Shared state manager for managing shared state between multiple Agent instances
+>>>>>>> main
 	private MapReduceSharedStateManager sharedStateManager;
 
 	// Track if split operation has completed, allowing termination
 	private volatile boolean splitCompleted = false;
 
+<<<<<<< HEAD
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public DataSplitTool(String planId, ManusProperties manusProperties, MapReduceSharedStateManager sharedStateManager,
 			UnifiedDirectoryManager unifiedDirectoryManager) {
+=======
+	private final ObjectMapper objectMapper;
+
+	public DataSplitTool(String planId, ManusProperties manusProperties, MapReduceSharedStateManager sharedStateManager,
+			UnifiedDirectoryManager unifiedDirectoryManager, ObjectMapper objectMapper) {
+>>>>>>> main
 		this.currentPlanId = planId;
 		this.manusProperties = manusProperties;
 		this.unifiedDirectoryManager = unifiedDirectoryManager;
 		this.sharedStateManager = sharedStateManager;
+<<<<<<< HEAD
 	}
 
 	/**
 	 * 设置共享状态管理器
+=======
+		this.objectMapper = objectMapper;
+	}
+
+	/**
+	 * Set shared state manager
+>>>>>>> main
 	 */
 	public void setSharedStateManager(MapReduceSharedStateManager sharedStateManager) {
 		this.sharedStateManager = sharedStateManager;

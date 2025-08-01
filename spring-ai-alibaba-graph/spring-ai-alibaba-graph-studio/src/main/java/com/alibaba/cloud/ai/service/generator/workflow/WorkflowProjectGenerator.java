@@ -202,6 +202,11 @@ public class WorkflowProjectGenerator implements ProjectGenerator {
 				continue;
 			}
 
+			// 迭代节点作为边的终止点时直接使用节点ID，作为边的起始点时使用ID_out
+			if (sourceType != null && sourceType.equalsIgnoreCase("iteration")) {
+				srcVar += "_out";
+			}
+
 			String key = srcVar + "->" + tgtVar;
 			if (renderedEdges.contains(key)) {
 				continue;
@@ -312,7 +317,7 @@ public class WorkflowProjectGenerator implements ProjectGenerator {
 		// construct a list of node types
 		Map<String, String> nodeTypeToClass = Map.ofEntries(
 				Map.entry(NodeType.ANSWER.difyValue(), "com.alibaba.cloud.ai.graph.node.AnswerNode"),
-				Map.entry(NodeType.CODE.difyValue(), "com.alibaba.cloud.ai.graph.node.CodeNode"),
+				Map.entry(NodeType.CODE.difyValue(), "com.alibaba.cloud.ai.graph.node.code.CodeExecutorNodeAction;"),
 				Map.entry(NodeType.LLM.difyValue(), "com.alibaba.cloud.ai.graph.node.LlmNode"),
 				Map.entry(NodeType.BRANCH.value(), "com.alibaba.cloud.ai.graph.node.BranchNode"),
 				Map.entry(NodeType.DOC_EXTRACTOR.difyValue(), "com.alibaba.cloud.ai.graph.node.DocumentExtractorNode"),
@@ -328,7 +333,8 @@ public class WorkflowProjectGenerator implements ProjectGenerator {
 				Map.entry(NodeType.KNOWLEDGE_RETRIEVAL.difyValue(),
 						"com.alibaba.cloud.ai.graph.node.KnowledgeRetrievalNode"),
 				Map.entry(NodeType.VARIABLE_AGGREGATOR.difyValue(),
-						"com.alibaba.cloud.ai.graph.node.VariableAggregatorNode"));
+						"com.alibaba.cloud.ai.graph.node.VariableAggregatorNode"),
+				Map.entry(NodeType.ITERATION.difyValue(), "com.alibaba.cloud.ai.graph.node.IterationNode"));
 
 		Set<String> uniqueTypes = workflow.getGraph()
 			.getNodes()

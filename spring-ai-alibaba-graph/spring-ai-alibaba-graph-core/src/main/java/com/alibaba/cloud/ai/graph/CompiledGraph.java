@@ -32,7 +32,9 @@ import com.alibaba.cloud.ai.graph.internal.node.CommandNode;
 import com.alibaba.cloud.ai.graph.internal.node.ParallelNode;
 import com.alibaba.cloud.ai.graph.state.StateSnapshot;
 import com.alibaba.cloud.ai.graph.streaming.AsyncGeneratorUtils;
-import com.alibaba.cloud.ai.graph.utils.SystemClock;
+import com.alibaba.cloud.ai.graph.utils.LifeListenerUtil;
+
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -140,7 +142,7 @@ public class CompiledGraph {
 				throw Errors.interruptionNodeNotExist.exception(interruption);
 			}
 		}
-		for (String interruption : processedData.interruptsBefore()) {
+		for (String interruption : processedData.interruptsAfter()) {
 			if (!processedData.nodes().anyMatchById(interruption)) {
 				throw Errors.interruptionNodeNotExist.exception(interruption);
 			}
@@ -197,7 +199,7 @@ public class CompiledGraph {
 					.map(target -> nodes.get(target.id()))
 					.toList();
 
-				var parallelNode = new ParallelNode(e.sourceId(), actions, keyStrategyMap);
+				var parallelNode = new ParallelNode(e.sourceId(), actions, keyStrategyMap, compileConfig);
 
 				nodes.put(parallelNode.id(), parallelNode.actionFactory().apply(compileConfig));
 
@@ -804,7 +806,19 @@ public class CompiledGraph {
 
 		private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeActionWithConfig action,
 				OverAllState withState) {
-			doListeners(NODE_BEFORE, null);
+			if (action instanceof ParallelNode.AsyncParallelNodeAction) {
+				return getDataCompletableFuture(action, withState, true);
+			}
+			else {
+				doListeners(NODE_BEFORE, null);
+				return getDataCompletableFuture(action, withState, false);
+			}
+
+		}
+
+		@NotNull
+		private CompletableFuture<Data<Output>> getDataCompletableFuture(AsyncNodeActionWithConfig action,
+				OverAllState withState, Boolean isParallel) {
 			return action.apply(withState, config).thenApply(updateState -> {
 				try {
 					if (action instanceof CommandNode.AsyncCommandNodeActionWithConfig) {
@@ -833,7 +847,10 @@ public class CompiledGraph {
 				catch (Exception e) {
 					throw new CompletionException(e);
 				}
-			}).whenComplete((outputData, throwable) -> doListeners(NODE_AFTER, null));
+			}).whenComplete((outputData, throwable) -> {
+				if (!isParallel)
+					doListeners(NODE_AFTER, null);
+			});
 		}
 
 		private Command nextNodeId(String nodeId, OverAllState overAllState, Map<String, Object> state,
@@ -968,39 +985,8 @@ public class CompiledGraph {
 
 		private void doListeners(String scene, Exception e) {
 			Deque<GraphLifecycleListener> listeners = new LinkedBlockingDeque<>(compileConfig.lifecycleListeners());
-
-			processListenersLIFO(listeners, scene, e);
-		}
-
-		private void processListenersLIFO(Deque<GraphLifecycleListener> listeners, String scene, Exception e) {
-			if (listeners.isEmpty()) {
-				return;
-			}
-
-			GraphLifecycleListener listener = listeners.pollLast();
-
-			try {
-				if (START.equals(scene)) {
-					listener.onStart(START, this.currentState, this.config);
-				}
-				else if (END.equals(scene)) {
-					listener.onComplete(END, this.currentState, this.config);
-				}
-				else if (ERROR.equals(scene)) {
-					listener.onError(this.currentNodeId, this.currentState, e, this.config);
-				}
-				else if (NODE_BEFORE.equals(scene)) {
-					listener.before(this.currentNodeId, this.currentState, this.config, SystemClock.now());
-				}
-				else if (NODE_AFTER.equals(scene)) {
-					listener.after(this.currentNodeId, this.currentState, this.config, SystemClock.now());
-				}
-
-				processListenersLIFO(listeners, scene, e);
-			}
-			catch (Exception ex) {
-				log.debug("Error occurred during listener processing: {}", ex.getMessage());
-			}
+			LifeListenerUtil.processListenersLIFO(this.currentNodeId, listeners, this.currentState, this.config, scene,
+					e);
 		}
 
 	}
@@ -1047,10 +1033,14 @@ record ProcessedNodesEdgesAndConfig(StateGraph.Nodes nodes, StateGraph.Edges edg
 
 			var sgWorkflow = subgraphNode.subGraph();
 
+			ProcessedNodesEdgesAndConfig processedSubGraph = process(sgWorkflow, config);
+			StateGraph.Nodes processedSubGraphNodes = processedSubGraph.nodes;
+			StateGraph.Edges processedSubGraphEdges = processedSubGraph.edges;
+
 			//
 			// Process START Node
 			//
-			var sgEdgeStart = sgWorkflow.edges.edgeBySourceId(START).orElseThrow();
+			var sgEdgeStart = processedSubGraphEdges.edgeBySourceId(START).orElseThrow();
 
 			if (sgEdgeStart.isParallel()) {
 				throw new GraphStateException("subgraph not support start with parallel branches yet!");
@@ -1087,7 +1077,7 @@ record ProcessedNodesEdgesAndConfig(StateGraph.Nodes nodes, StateGraph.Edges edg
 			//
 			// Process END Nodes
 			//
-			var sgEdgesEnd = sgWorkflow.edges.edgesByTargetId(END);
+			var sgEdgesEnd = processedSubGraphEdges.edgesByTargetId(END);
 
 			var edgeWithSubgraphSourceId = edges.edgeBySourceId(subgraphNode.id()).orElseThrow();
 
@@ -1115,7 +1105,7 @@ record ProcessedNodesEdgesAndConfig(StateGraph.Nodes nodes, StateGraph.Edges edg
 			//
 			// Process edges
 			//
-			sgWorkflow.edges.elements.stream()
+			processedSubGraphEdges.elements.stream()
 				.filter(e -> !Objects.equals(e.sourceId(), START))
 				.filter(e -> !e.anyMatchByTargetId(END))
 				.map(e -> e.withSourceAndTargetIdsUpdated(subgraphNode, subgraphNode::formatId,
@@ -1125,7 +1115,7 @@ record ProcessedNodesEdgesAndConfig(StateGraph.Nodes nodes, StateGraph.Edges edg
 			//
 			// Process nodes
 			//
-			sgWorkflow.nodes.elements.stream().map(n -> {
+			processedSubGraphNodes.elements.stream().map(n -> {
 				if (n instanceof CommandNode commandNode) {
 					Map<String, String> mappings = commandNode.getMappings();
 					HashMap<String, String> newMappings = new HashMap<>();

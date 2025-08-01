@@ -38,7 +38,11 @@ public class FinalizeTool extends AbstractBaseTool<FinalizeTool.FinalizeInput> i
 
 	private static final Logger log = LoggerFactory.getLogger(FinalizeTool.class);
 
+<<<<<<< HEAD
 	// ==================== 配置常量 ====================
+=======
+	// ==================== Configuration Constants ====================
+>>>>>>> main
 
 	/**
 	 * Supported operation type: export reduce output to new file
@@ -118,7 +122,11 @@ public class FinalizeTool extends AbstractBaseTool<FinalizeTool.FinalizeInput> i
 
 	private ManusProperties manusProperties;
 
+<<<<<<< HEAD
 	// 共享状态管理器，用于管理多个Agent实例间的共享状态
+=======
+	// Shared state manager for managing shared state between multiple Agent instances
+>>>>>>> main
 	private MapReduceSharedStateManager sharedStateManager;
 
 	// Track if any operation has completed, allowing termination
@@ -134,7 +142,11 @@ public class FinalizeTool extends AbstractBaseTool<FinalizeTool.FinalizeInput> i
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 设置共享状态管理器
+=======
+	 * Set shared state manager
+>>>>>>> main
 	 */
 	public void setSharedStateManager(MapReduceSharedStateManager sharedStateManager) {
 		this.sharedStateManager = sharedStateManager;
